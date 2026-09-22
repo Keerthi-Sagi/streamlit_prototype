@@ -924,13 +924,11 @@ elif page == "Authors":
     author_from_url = st.query_params.get("author")
 
     if author_from_url:
-
         st.session_state.selected_author = unquote(
             str(author_from_url)
         )
 
     elif "selected_author" not in st.session_state:
-
         st.session_state.selected_author = None
 
 
@@ -951,11 +949,8 @@ elif page == "Authors":
             if author.strip()
         ]
 
-        # Prevent duplicate author names
-        # within the same publication
-        authors = list(
-            dict.fromkeys(authors)
-        )
+        # Remove duplicate author names within an article
+        authors = list(dict.fromkeys(authors))
 
         for author in authors:
 
@@ -972,17 +967,18 @@ elif page == "Authors":
                 }
             )
 
-
-    author_df = pd.DataFrame(
-        author_rows
-    )
+    author_df = pd.DataFrame(author_rows)
 
 
     # ========================================================
-    # AUTHOR DIRECTORY
+    # AUTHOR DIRECTORY / RANKING
     # ========================================================
 
     if st.session_state.selected_author is None:
+
+        # ----------------------------------------------------
+        # PAGE HEADER
+        # ----------------------------------------------------
 
         st.markdown(
             '<div class="section-label">'
@@ -991,9 +987,7 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-        st.header(
-            "Authors"
-        )
+        st.header("Authors")
 
         st.caption(
             f"Researchers publishing in "
@@ -1003,7 +997,7 @@ elif page == "Authors":
 
 
         # ====================================================
-        # AUTHOR SUMMARY
+        # BUILD AUTHOR SUMMARY
         # ====================================================
 
         author_summary = (
@@ -1014,17 +1008,14 @@ elif page == "Authors":
                     "DOI",
                     "nunique"
                 ),
-
                 Citations=(
                     "Citations",
                     "sum"
                 ),
-
                 First_Publication=(
                     "Year",
                     "min"
                 ),
-
                 Latest_Publication=(
                     "Year",
                     "max"
@@ -1033,10 +1024,7 @@ elif page == "Authors":
             .reset_index()
         )
 
-
-        author_summary[
-            "Citations_per_Paper"
-        ] = (
+        author_summary["Citations_per_Paper"] = (
             author_summary["Citations"]
             /
             author_summary["Publications"]
@@ -1049,12 +1037,10 @@ elif page == "Authors":
 
         a1, a2, a3, a4 = st.columns(4)
 
-
         a1.metric(
             "Authors",
             f"{len(author_summary):,}"
         )
-
 
         a2.metric(
             "Authors with 5+ Papers",
@@ -1062,7 +1048,6 @@ elif page == "Authors":
                 author_summary['Publications'] >= 5
             ).sum():,}"
         )
-
 
         a3.metric(
             "Most Papers by One Author",
@@ -1072,7 +1057,6 @@ elif page == "Authors":
                 ].max()
             ):,}"
         )
-
 
         a4.metric(
             "Highest Citation Total",
@@ -1085,7 +1069,7 @@ elif page == "Authors":
 
 
         # ====================================================
-        # SEARCH / FILTER / SORT
+        # SEARCH / FILTER / RANKING CONTROLS
         # ====================================================
 
         st.markdown(
@@ -1093,11 +1077,9 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-
         search_col, min_col, sort_col = st.columns(
             [2.4, 1, 1.4]
         )
-
 
         with search_col:
 
@@ -1105,7 +1087,6 @@ elif page == "Authors":
                 "Search authors",
                 placeholder="Search by author name..."
             )
-
 
         with min_col:
 
@@ -1115,7 +1096,6 @@ elif page == "Authors":
                 value=1,
                 step=1
             )
-
 
         with sort_col:
 
@@ -1140,7 +1120,6 @@ elif page == "Authors":
             ] >= min_author_papers
         ].copy()
 
-
         if author_search:
 
             display_authors = display_authors[
@@ -1154,35 +1133,134 @@ elif page == "Authors":
             ]
 
 
-        sort_map = {
+        # ====================================================
+        # AUTHOR RANKING LOGIC
+        # ====================================================
 
-            "Publications":
-                "Publications",
+        if author_sort == "Publications":
 
-            "Citations":
-                "Citations",
+            # Primary:
+            #   Publication count
+            #
+            # Tie-breakers:
+            #   1. Total citations
+            #   2. Citations per paper
+            #   3. Author name
 
-            "Citations per Paper":
-                "Citations_per_Paper",
-
-            "Latest Publication":
-                "Latest_Publication"
-        }
-
-
-        display_authors = (
-            display_authors
-            .sort_values(
-                sort_map[author_sort],
-                ascending=False
+            display_authors = (
+                display_authors
+                .sort_values(
+                    [
+                        "Publications",
+                        "Citations",
+                        "Citations_per_Paper",
+                        "Author"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+                .reset_index(drop=True)
             )
-            .reset_index(
-                drop=True
+
+
+        elif author_sort == "Citations":
+
+            # Primary:
+            #   Total citations
+            #
+            # Tie-breakers:
+            #   1. Publications
+            #   2. Citations per paper
+            #   3. Author name
+
+            display_authors = (
+                display_authors
+                .sort_values(
+                    [
+                        "Citations",
+                        "Publications",
+                        "Citations_per_Paper",
+                        "Author"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+                .reset_index(drop=True)
             )
-        )
 
 
-        # Add rank
+        elif author_sort == "Citations per Paper":
+
+            # Primary:
+            #   Average citations per publication
+            #
+            # Tie-breakers:
+            #   1. Total citations
+            #   2. Publications
+            #   3. Author name
+
+            display_authors = (
+                display_authors
+                .sort_values(
+                    [
+                        "Citations_per_Paper",
+                        "Citations",
+                        "Publications",
+                        "Author"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+                .reset_index(drop=True)
+            )
+
+
+        elif author_sort == "Latest Publication":
+
+            # Primary:
+            #   Latest publication year
+            #
+            # Tie-breakers:
+            #   1. Publications
+            #   2. Citations
+            #   3. Author name
+
+            display_authors = (
+                display_authors
+                .sort_values(
+                    [
+                        "Latest_Publication",
+                        "Publications",
+                        "Citations",
+                        "Author"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+                .reset_index(drop=True)
+            )
+
+
+        # ====================================================
+        # ADD DISPLAY RANK
+        # ====================================================
+
         display_authors.insert(
             0,
             "Rank",
@@ -1199,11 +1277,9 @@ elif page == "Authors":
 
         st.divider()
 
-
         title_col, count_col = st.columns(
             [3, 1]
         )
-
 
         with title_col:
 
@@ -1211,21 +1287,22 @@ elif page == "Authors":
                 "Author Ranking"
             )
 
-
         with count_col:
 
             st.markdown(
-                f"<p style='"
-                f"text-align:right;"
-                f"padding-top:10px;"
-                f"font-size:0.9rem;"
-                f"opacity:0.65;'>"
-                f"<b>{len(display_authors):,}</b> "
-                f"authors found"
-                f"</p>",
+                f"""
+                <p style="
+                    text-align:right;
+                    padding-top:10px;
+                    font-size:0.9rem;
+                    opacity:0.65;
+                ">
+                    <b>{len(display_authors):,}</b>
+                    authors found
+                </p>
+                """,
                 unsafe_allow_html=True
             )
-
 
         st.caption(
             "Click an author name to view "
@@ -1234,7 +1311,7 @@ elif page == "Authors":
 
 
         # ====================================================
-        # CREATE RANKING TABLE
+        # PREPARE RANKING TABLE
         # ====================================================
 
         ranking_table = (
@@ -1253,10 +1330,8 @@ elif page == "Authors":
             .copy()
         )
 
-
         ranking_table = ranking_table.rename(
             columns={
-
                 "Citations_per_Paper":
                     "Citations / Paper",
 
@@ -1270,7 +1345,7 @@ elif page == "Authors":
 
 
         # ====================================================
-        # CREATE AUTHOR PROFILE LINKS
+        # CREATE CLICKABLE AUTHOR LINKS
         # ====================================================
 
         ranking_table["Author Link"] = (
@@ -1284,7 +1359,7 @@ elif page == "Authors":
 
 
         # ====================================================
-        # FINAL DISPLAY TABLE
+        # FINAL RANKING TABLE
         # ====================================================
 
         ranking_display = (
@@ -1305,11 +1380,8 @@ elif page == "Authors":
 
         st.dataframe(
             ranking_display,
-
             use_container_width=True,
-
             hide_index=True,
-
             height=650,
 
             column_config={
@@ -1367,9 +1439,46 @@ elif page == "Authors":
         )
 
 
+        # ====================================================
+        # RANKING METHODOLOGY
+        # ====================================================
+
+        if author_sort == "Publications":
+
+            ranking_note = (
+                "Authors are ranked by number of publications. "
+                "Ties are resolved by total citations, followed "
+                "by citations per paper."
+            )
+
+        elif author_sort == "Citations":
+
+            ranking_note = (
+                "Authors are ranked by total citations. "
+                "Ties are resolved by publication count, "
+                "followed by citations per paper."
+            )
+
+        elif author_sort == "Citations per Paper":
+
+            ranking_note = (
+                "Authors are ranked by average citations per "
+                "publication. Ties are resolved by total "
+                "citations, followed by publication count."
+            )
+
+        else:
+
+            ranking_note = (
+                "Authors are ranked by their most recent "
+                "publication year. Ties are resolved by "
+                "publication count, followed by total citations."
+            )
+
         st.caption(
-            "Rankings are calculated within the "
-            "selected publication period."
+            f"Ranking methodology: {ranking_note} "
+            f"Metrics are calculated within the selected "
+            f"{selected_journal} publication period."
         )
 
 
@@ -1425,11 +1534,9 @@ elif page == "Authors":
         if author_articles.empty:
 
             st.warning(
-                "No publications were found for "
-                "this author within the currently "
-                "selected filters."
+                "No publications were found for this author "
+                "within the currently selected filters."
             )
-
 
             if st.button(
                 "Return to Authors"
@@ -1443,12 +1550,11 @@ elif page == "Authors":
 
                 st.rerun()
 
-
             st.stop()
 
 
         # ====================================================
-        # METRICS
+        # AUTHOR METRICS
         # ====================================================
 
         total_papers = (
@@ -1456,7 +1562,6 @@ elif page == "Authors":
                 "DOI"
             ].nunique()
         )
-
 
         total_author_citations = int(
             author_articles[
@@ -1466,7 +1571,6 @@ elif page == "Authors":
             .sum()
         )
 
-
         average_citations = (
             total_author_citations
             / total_papers
@@ -1474,13 +1578,11 @@ elif page == "Authors":
             else 0
         )
 
-
         first_year = int(
             author_articles[
                 "Year"
             ].min()
         )
-
 
         latest_year = int(
             author_articles[
@@ -1500,13 +1602,10 @@ elif page == "Authors":
             .fillna(0)
             .astype(int)
             .tolist(),
-
             reverse=True
         )
 
-
         h_index = 0
-
 
         for i, citation_count in enumerate(
             citation_values,
@@ -1514,11 +1613,9 @@ elif page == "Authors":
         ):
 
             if citation_count >= i:
-
                 h_index = i
 
             else:
-
                 break
 
 
@@ -1549,7 +1646,6 @@ elif page == "Authors":
             )
         )
 
-
         with profile_left:
 
             st.markdown(
@@ -1573,7 +1669,6 @@ elif page == "Authors":
                 unsafe_allow_html=True
             )
 
-
         with profile_right:
 
             st.markdown(
@@ -1583,11 +1678,9 @@ elif page == "Authors":
                 unsafe_allow_html=True
             )
 
-
             st.header(
                 selected_author
             )
-
 
             st.caption(
                 f"{selected_journal} · "
@@ -1604,53 +1697,44 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-
         m1, m2, m3 = st.columns(3)
-
 
         m1.metric(
             "Papers",
             f"{total_papers:,}"
         )
 
-
         m2.metric(
             "Total Citations",
             f"{total_author_citations:,}"
         )
-
 
         m3.metric(
             "Citations / Paper",
             f"{average_citations:,.1f}"
         )
 
-
         m4, m5, m6 = st.columns(3)
-
 
         m4.metric(
             "DSS h-index",
             f"{h_index:,}"
         )
 
-
         m5.metric(
             "First Publication",
             f"{first_year}"
         )
-
 
         m6.metric(
             "Latest Publication",
             f"{latest_year}"
         )
 
-
         st.caption(
-            "The DSS h-index is calculated only "
-            "from publications contained in the "
-            "currently selected dataset."
+            "The DSS h-index is calculated only from "
+            "publications and citation counts contained "
+            "in the currently selected dataset."
         )
 
 
@@ -1660,7 +1744,6 @@ elif page == "Authors":
 
         st.divider()
 
-
         st.markdown(
             '<div class="section-label">'
             'Publication Activity'
@@ -1668,17 +1751,13 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-
         st.subheader(
             "Output Over Time"
         )
 
-
         author_yearly = (
             author_articles
-            .groupby(
-                "Year"
-            )
+            .groupby("Year")
             .agg(
                 Publications=(
                     "DOI",
@@ -1688,20 +1767,17 @@ elif page == "Authors":
             .reset_index()
         )
 
-
         fig_author_output = px.bar(
             author_yearly,
             x="Year",
             y="Publications"
         )
 
-
         fig_author_output.update_layout(
             height=330,
             xaxis_title="",
             yaxis_title="Publications",
             showlegend=False,
-
             margin=dict(
                 l=20,
                 r=20,
@@ -1710,11 +1786,9 @@ elif page == "Authors":
             )
         )
 
-
         fig_author_output.update_xaxes(
             dtick=1
         )
-
 
         st.plotly_chart(
             fig_author_output,
@@ -1723,11 +1797,10 @@ elif page == "Authors":
 
 
         # ====================================================
-        # RESEARCH TOPICS
+        # LEADING RESEARCH TOPICS
         # ====================================================
 
         st.divider()
-
 
         st.markdown(
             '<div class="section-label">'
@@ -1736,18 +1809,15 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-
         st.subheader(
             "Leading Research Topics"
         )
-
 
         topic_values = split_values(
             author_articles[
                 "Topic"
             ]
         )
-
 
         if topic_values:
 
@@ -1760,12 +1830,10 @@ elif page == "Authors":
                 .reset_index()
             )
 
-
             author_topics.columns = [
                 "Topic",
                 "Publications"
             ]
-
 
             topic_plot = (
                 author_topics
@@ -1775,7 +1843,6 @@ elif page == "Authors":
                 )
             )
 
-
             fig_author_topics = px.bar(
                 topic_plot,
                 x="Publications",
@@ -1783,13 +1850,11 @@ elif page == "Authors":
                 orientation="h"
             )
 
-
             fig_author_topics.update_layout(
                 height=400,
                 xaxis_title="Publications",
                 yaxis_title="",
                 showlegend=False,
-
                 margin=dict(
                     l=10,
                     r=20,
@@ -1798,12 +1863,10 @@ elif page == "Authors":
                 )
             )
 
-
             st.plotly_chart(
                 fig_author_topics,
                 use_container_width=True
             )
-
 
         else:
 
@@ -1819,7 +1882,6 @@ elif page == "Authors":
 
         st.divider()
 
-
         st.markdown(
             '<div class="section-label">'
             'Citation Impact'
@@ -1827,11 +1889,9 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-
         st.subheader(
             "Most Cited Publications"
         )
-
 
         top_author_articles = (
             author_articles[
@@ -1849,12 +1909,9 @@ elif page == "Authors":
             .copy()
         )
 
-
         st.dataframe(
             top_author_articles,
-
             use_container_width=True,
-
             hide_index=True,
 
             column_config={
@@ -1887,7 +1944,6 @@ elif page == "Authors":
 
         st.divider()
 
-
         st.markdown(
             '<div class="section-label">'
             'Research Output'
@@ -1895,11 +1951,9 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-
         st.subheader(
             "Publications"
         )
-
 
         publication_table = (
             author_articles[
@@ -1915,7 +1969,6 @@ elif page == "Authors":
                     "Year",
                     "Citations"
                 ],
-
                 ascending=[
                     False,
                     False
@@ -1948,7 +2001,6 @@ elif page == "Authors":
             )
         )
 
-
         publication_table = (
             publication_table[
                 [
@@ -1967,11 +2019,8 @@ elif page == "Authors":
 
         st.dataframe(
             publication_table,
-
             use_container_width=True,
-
             hide_index=True,
-
             height=550,
 
             column_config={
