@@ -18,8 +18,9 @@ st.set_page_config(
 )
 
 # ============================================================
-
 # GLOBAL DESIGN / CSS
+# ============================================================
+
 st.markdown("""
 
 <style>
@@ -126,7 +127,7 @@ hr {
 }
 
 </style>
-
+ 
 """, unsafe_allow_html=True)
 
 # ============================================================
@@ -190,10 +191,8 @@ pages = [
     "Methodology"
 ]
 
-
 # Check whether the URL specifies a page
 page_from_url = st.query_params.get("page")
-
 
 if page_from_url in pages:
 
@@ -204,21 +203,17 @@ if page_from_url in pages:
 else:
 
     default_page_index = 0
-
-
 page = st.sidebar.radio(
     "Explore",
     pages,
     index=default_page_index
 )
 
-
 # ============================================================
 # YEAR FILTER
 # ============================================================
 
 st.sidebar.divider()
-
 
 min_year = int(
     df["Year"].min()
@@ -228,14 +223,12 @@ max_year = int(
     df["Year"].max()
 )
 
-
 year_range = st.sidebar.slider(
     "Publication years",
     min_value=min_year,
     max_value=max_year,
     value=(min_year, max_year)
 )
-
 
 # ============================================================
 # FILTER DATA
@@ -248,7 +241,6 @@ filtered_df = df[
     &
     (df["Year"] <= year_range[1])
 ].copy()
-
 
 # # ============================================================
 # # HEADER
@@ -267,26 +259,19 @@ filtered_df = df[
 
 # st.divider()
 
-
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
 
-def split_values(series):
-
+def split_values(series): 
     values = []
-
     for cell in series.dropna():
-
         for value in str(cell).split("|"):
-
             value = value.strip()
-
             if value:
                 values.append(value)
 
     return values
-
 
 def unique_count(series):
 
@@ -294,19 +279,16 @@ def unique_count(series):
         set(split_values(series))
     )
 
-
 def country_code_to_name(code):
 
     if pd.isna(code):
         return None
 
     code = str(code).strip().upper()
-
     try:
         country = pycountry.countries.get(
             alpha_2=code
         )
-
         if country:
             return country.name
 
@@ -316,6 +298,83 @@ def country_code_to_name(code):
     # Keep original value if it is already
     # a country name or cannot be identified.
     return code
+
+# ============================================================
+# SINGLE-CELL MULTI-VALUE HELPER
+# ============================================================
+
+def split_cell(value):
+    """
+    Split a pipe-separated value from a single dataframe cell.
+
+    Example:
+    "Author A | Author B | Author C"
+    ->
+    ["Author A", "Author B", "Author C"]
+    """
+
+    if pd.isna(value):
+        return []
+
+    values = [
+        item.strip()
+        for item in str(value).split("|")
+        if item.strip()
+    ]
+
+    # Remove duplicates while preserving order
+    return list(dict.fromkeys(values))
+
+
+# ============================================================
+# DOI NORMALIZATION
+# ============================================================
+
+def normalize_doi(doi):
+    """
+    Convert DOI values into a consistent format for matching.
+    """
+    if pd.isna(doi):
+        return ""
+    doi = str(doi).strip()
+
+    doi = doi.replace(
+        "https://doi.org/",
+        ""
+    )
+    doi = doi.replace(
+        "http://doi.org/",
+        ""
+    )
+    return doi.lower()
+
+
+# ============================================================
+# DOI LINK
+# ============================================================
+
+def make_doi_link(doi):
+    """
+    Convert a DOI into a clickable https://doi.org URL.
+    """
+
+    if pd.isna(doi):
+        return None
+    doi = str(doi).strip()
+    if not doi:
+        return None
+    if doi.startswith(
+        "https://doi.org/"
+    ):
+        return doi
+    if doi.startswith(
+        "http://doi.org/"
+    ):
+        return doi.replace(
+            "http://doi.org/",
+            "https://doi.org/"
+        )
+    return f"https://doi.org/{doi}"
 
 # ============================================================
 # SESSION STATE
@@ -630,7 +689,6 @@ if page == "Overview":
         '<div class="section-label">Research Landscape</div>',
         unsafe_allow_html=True
     )
-
     st.subheader("Leading Research Areas")
 
 
@@ -642,7 +700,6 @@ if page == "Overview":
         filtered_df["Topic"]
     )
 
-
     topic_counts = (
         pd.Series(topic_values)
         .value_counts()
@@ -650,12 +707,10 @@ if page == "Overview":
         .reset_index()
     )
 
-
     topic_counts.columns = [
         "Topic",
         "Publications"
     ]
-
 
     # --------------------------------------------------------
     # INSTITUTIONS
@@ -665,7 +720,6 @@ if page == "Overview":
         filtered_df["Institution"]
     )
 
-
     institution_counts = (
         pd.Series(institution_values)
         .value_counts()
@@ -673,15 +727,12 @@ if page == "Overview":
         .reset_index()
     )
 
-
     institution_counts.columns = [
         "Institution",
         "Publications"
     ]
 
-
     chart1, chart2 = st.columns(2)
-
 
     # --------------------------------------------------------
     # TOP TOPICS
@@ -691,7 +742,6 @@ if page == "Overview":
 
         st.markdown("#### Top Research Topics")
 
-
         topic_chart_data = (
             topic_counts
             .sort_values(
@@ -700,14 +750,12 @@ if page == "Overview":
             )
         )
 
-
         fig_top_topics = px.bar(
             topic_chart_data,
             x="Publications",
             y="Topic",
             orientation="h"
         )
-
 
         fig_top_topics.update_layout(
             height=450,
@@ -720,7 +768,6 @@ if page == "Overview":
                 b=40
             )
         )
-
 
         st.plotly_chart(
             fig_top_topics,
@@ -736,7 +783,6 @@ if page == "Overview":
 
         st.markdown("#### Leading Institutions")
 
-
         institution_chart_data = (
             institution_counts
             .sort_values(
@@ -745,14 +791,12 @@ if page == "Overview":
             )
         )
 
-
         fig_institutions = px.bar(
             institution_chart_data,
             x="Publications",
             y="Institution",
             orientation="h"
         )
-
 
         fig_institutions.update_layout(
             height=450,
@@ -765,7 +809,6 @@ if page == "Overview":
                 b=40
             )
         )
-
 
         st.plotly_chart(
             fig_institutions,
@@ -788,7 +831,6 @@ if page == "Overview":
         "Most Cited Publications"
     )
 
-
     top_articles = (
         filtered_df[
             [
@@ -806,7 +848,6 @@ if page == "Overview":
         .copy()
     )
 
-
     top_articles = top_articles.rename(
         columns={
             "Citation count":
@@ -814,14 +855,10 @@ if page == "Overview":
         }
     )
 
-
     st.dataframe(
         top_articles,
-
         use_container_width=True,
-
         hide_index=True,
-
         column_config={
 
             "Title":
@@ -892,7 +929,6 @@ if page == "Overview":
         f"{total_countries:,}"
     )
 
-
     st.divider()
 
     st.subheader(
@@ -918,10 +954,11 @@ if page == "Overview":
 elif page == "Authors":
 
     # ========================================================
-    # CHECK URL FOR SELECTED AUTHOR
+    # READ URL PARAMETERS
     # ========================================================
 
     author_from_url = st.query_params.get("author")
+    article_from_url = st.query_params.get("article")
 
     if author_from_url:
         st.session_state.selected_author = unquote(
@@ -930,7 +967,6 @@ elif page == "Authors":
 
     elif "selected_author" not in st.session_state:
         st.session_state.selected_author = None
-
 
     # ========================================================
     # BUILD AUTHOR-LEVEL DATA
@@ -949,7 +985,7 @@ elif page == "Authors":
             if author.strip()
         ]
 
-        # Remove duplicate author names within an article
+        # Remove duplicate names within the same article
         authors = list(dict.fromkeys(authors))
 
         for author in authors:
@@ -969,15 +1005,14 @@ elif page == "Authors":
 
     author_df = pd.DataFrame(author_rows)
 
-
     # ========================================================
-    # AUTHOR DIRECTORY / RANKING
+    # AUTHOR DIRECTORY
     # ========================================================
 
     if st.session_state.selected_author is None:
 
         # ----------------------------------------------------
-        # PAGE HEADER
+        # HEADER
         # ----------------------------------------------------
 
         st.markdown(
@@ -995,31 +1030,18 @@ elif page == "Authors":
             f"{year_range[0]}–{year_range[1]}"
         )
 
-
         # ====================================================
-        # BUILD AUTHOR SUMMARY
+        # AUTHOR SUMMARY
         # ====================================================
 
         author_summary = (
             author_df
             .groupby("Author")
             .agg(
-                Publications=(
-                    "DOI",
-                    "nunique"
-                ),
-                Citations=(
-                    "Citations",
-                    "sum"
-                ),
-                First_Publication=(
-                    "Year",
-                    "min"
-                ),
-                Latest_Publication=(
-                    "Year",
-                    "max"
-                )
+                Publications=("DOI", "nunique"),
+                Citations=("Citations", "sum"),
+                First_Publication=("Year", "min"),
+                Latest_Publication=("Year", "max")
             )
             .reset_index()
         )
@@ -1051,25 +1073,16 @@ elif page == "Authors":
 
         a3.metric(
             "Most Papers by One Author",
-            f"{int(
-                author_summary[
-                    'Publications'
-                ].max()
-            ):,}"
+            f"{int(author_summary['Publications'].max()):,}"
         )
 
         a4.metric(
             "Highest Citation Total",
-            f"{int(
-                author_summary[
-                    'Citations'
-                ].max()
-            ):,}"
+            f"{int(author_summary['Citations'].max()):,}"
         )
 
-
         # ====================================================
-        # SEARCH / FILTER / RANKING CONTROLS
+        # SEARCH / FILTER / SORT
         # ====================================================
 
         st.markdown(
@@ -1109,44 +1122,31 @@ elif page == "Authors":
                 ]
             )
 
-
         # ====================================================
         # FILTER AUTHORS
         # ====================================================
 
         display_authors = author_summary[
-            author_summary[
-                "Publications"
-            ] >= min_author_papers
+            author_summary["Publications"]
+            >= min_author_papers
         ].copy()
 
         if author_search:
 
             display_authors = display_authors[
-                display_authors[
-                    "Author"
-                ].str.contains(
+                display_authors["Author"].str.contains(
                     author_search,
                     case=False,
                     na=False
                 )
             ]
 
-
         # ====================================================
-        # AUTHOR RANKING LOGIC
+        # RANKING LOGIC
         # ====================================================
 
         if author_sort == "Publications":
 
-            # Primary:
-            #   Publication count
-            #
-            # Tie-breakers:
-            #   1. Total citations
-            #   2. Citations per paper
-            #   3. Author name
-
             display_authors = (
                 display_authors
                 .sort_values(
@@ -1165,18 +1165,9 @@ elif page == "Authors":
                 )
                 .reset_index(drop=True)
             )
-
 
         elif author_sort == "Citations":
 
-            # Primary:
-            #   Total citations
-            #
-            # Tie-breakers:
-            #   1. Publications
-            #   2. Citations per paper
-            #   3. Author name
-
             display_authors = (
                 display_authors
                 .sort_values(
@@ -1195,18 +1186,9 @@ elif page == "Authors":
                 )
                 .reset_index(drop=True)
             )
-
 
         elif author_sort == "Citations per Paper":
 
-            # Primary:
-            #   Average citations per publication
-            #
-            # Tie-breakers:
-            #   1. Total citations
-            #   2. Publications
-            #   3. Author name
-
             display_authors = (
                 display_authors
                 .sort_values(
@@ -1226,16 +1208,7 @@ elif page == "Authors":
                 .reset_index(drop=True)
             )
 
-
-        elif author_sort == "Latest Publication":
-
-            # Primary:
-            #   Latest publication year
-            #
-            # Tie-breakers:
-            #   1. Publications
-            #   2. Citations
-            #   3. Author name
+        else:
 
             display_authors = (
                 display_authors
@@ -1256,9 +1229,8 @@ elif page == "Authors":
                 .reset_index(drop=True)
             )
 
-
         # ====================================================
-        # ADD DISPLAY RANK
+        # ADD RANK
         # ====================================================
 
         display_authors.insert(
@@ -1270,22 +1242,14 @@ elif page == "Authors":
             )
         )
 
-
         # ====================================================
-        # AUTHOR RANKING HEADER
+        # RANKING HEADER
         # ====================================================
 
         st.divider()
-
-        title_col, count_col = st.columns(
-            [3, 1]
-        )
-
+        title_col, count_col = st.columns([3, 1])
         with title_col:
-
-            st.subheader(
-                "Author Ranking"
-            )
+            st.subheader("Author Ranking")
 
         with count_col:
 
@@ -1308,7 +1272,6 @@ elif page == "Authors":
             "Click an author name to view "
             "their research profile."
         )
-
 
         # ====================================================
         # PREPARE RANKING TABLE
@@ -1343,24 +1306,17 @@ elif page == "Authors":
             }
         )
 
-
         # ====================================================
-        # CREATE CLICKABLE AUTHOR LINKS
+        # CLICKABLE AUTHOR LINKS
         # ====================================================
 
         ranking_table["Author Link"] = (
-            ranking_table["Author"]
-            .apply(
+            ranking_table["Author"].apply(
                 lambda name:
-                f"?page=Authors&author="
-                f"{quote(str(name))}"
+                f"?page=Authors"
+                f"&author={quote(str(name))}"
             )
         )
-
-
-        # ====================================================
-        # FINAL RANKING TABLE
-        # ====================================================
 
         ranking_display = (
             ranking_table[
@@ -1377,6 +1333,9 @@ elif page == "Authors":
             .copy()
         )
 
+        # ====================================================
+        # DISPLAY AUTHOR TABLE
+        # ====================================================
 
         st.dataframe(
             ranking_display,
@@ -1438,7 +1397,6 @@ elif page == "Authors":
             }
         )
 
-
         # ====================================================
         # RANKING METHODOLOGY
         # ====================================================
@@ -1483,7 +1441,7 @@ elif page == "Authors":
 
 
     # ========================================================
-    # AUTHOR PROFILE
+    # AUTHOR / ARTICLE PROFILE AREA
     # ========================================================
 
     else:
@@ -1492,9 +1450,741 @@ elif page == "Authors":
             st.session_state.selected_author
         )
 
+        # ====================================================
+        # ARTICLE PROFILE
+        # ====================================================
+
+        if article_from_url:
+
+            selected_doi = unquote(
+                str(article_from_url)
+            )
+
+            # ====================================================
+            # FIND SELECTED ARTICLE
+            # ====================================================
+
+            article_match = filtered_df[
+                filtered_df["DOI"].apply(normalize_doi)
+                ==
+                normalize_doi(selected_doi)
+            ].copy()
+
+            # ====================================================
+            # ARTICLE NOT FOUND
+            # ====================================================
+
+            if article_match.empty:
+
+                st.warning(
+                    "This article could not be found within "
+                    "the currently selected journal and year filters."
+                )
+
+                if st.button(
+                    f"← Back to {selected_author}"
+                ):
+
+                    st.query_params.clear()
+                    st.query_params["page"] = "Authors"
+                    st.query_params["author"] = selected_author
+
+                    st.rerun()
+
+                st.stop()
+
+
+            # One DOI = one article in our cleaned dataset
+            article = article_match.iloc[0]
+
+
+            # ====================================================
+            # BACK TO AUTHOR
+            # ====================================================
+
+            if st.button(
+                f"← Back to {selected_author}"
+            ):
+
+                st.query_params.clear()
+
+                st.query_params["page"] = "Authors"
+                st.query_params["author"] = selected_author
+
+                st.rerun()
+
+
+            # ====================================================
+            # BASIC ARTICLE INFORMATION
+            # ====================================================
+
+            article_title = (
+                str(article["Title"])
+                if pd.notna(article["Title"])
+                else "Untitled publication"
+            )
+
+            article_year = (
+                int(article["Year"])
+                if pd.notna(article["Year"])
+                else None
+            )
+
+            article_citations = (
+                int(article["Citation count"])
+                if pd.notna(article["Citation count"])
+                else 0
+            )
+
+            article_date = article["Date"]
+
+            if pd.notna(article_date):
+
+                try:
+                    article_date_display = pd.to_datetime(
+                        article_date
+                    ).strftime("%B %d, %Y")
+
+                except Exception:
+                    article_date_display = str(article_date)
+
+            else:
+                article_date_display = "Not available"
+
+
+            # ====================================================
+            # OPEN ACCESS
+            # ====================================================
+
+            if pd.notna(article["Open access"]):
+                open_access = str(
+                    article["Open access"]
+                )
+            else:
+                open_access = "Unknown"
+
+
+            # ====================================================
+            # ARTICLE HEADER
+            # ====================================================
+
+            st.markdown(
+                '<div class="section-label">'
+                'Article Profile'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.title(
+                article_title
+            )
+
+            st.caption(
+                f"{selected_journal}"
+                +
+                (
+                    f" · {article_year}"
+                    if article_year
+                    else ""
+                )
+            )
+
+            # ====================================================
+            # ARTICLE METRICS
+            # ====================================================
+
+            st.markdown(
+                "<br>",
+                unsafe_allow_html=True
+            )
+
+            metric1, metric2, metric3 = st.columns(3)
+
+            metric1.metric(
+                "Citations",
+                f"{article_citations:,}"
+            )
+
+            metric2.metric(
+                "Open Access",
+                open_access
+            )
+
+            metric3.metric(
+                "Publication Year",
+                article_year
+                if article_year
+                else "Unknown"
+            )
+
+            # ====================================================
+            # AUTHORS & CO-AUTHORS
+            # ====================================================
+
+            st.divider()
+
+            st.markdown(
+                '<div class="section-label">'
+                'Research Team'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Authors & Co-authors"
+            )
+
+            # ====================================================
+            # GET ARTICLE AUTHORS
+            # ====================================================
+
+            article_authors = []
+
+            if pd.notna(article["Author"]):
+
+                article_authors = [
+                    name.strip()
+                    for name in str(article["Author"]).split("|")
+                    if name.strip()
+                ]
+
+                # Remove duplicates while preserving order
+                article_authors = list(
+                    dict.fromkeys(
+                        article_authors
+                    )
+                )
+
+            if article_authors:
+
+                for author_name in article_authors:
+
+                    author_url = (
+                        f"?page=Authors"
+                        f"&author={quote(str(author_name))}"
+                    )
+
+                    # Show where we entered the article from
+                    if author_name == selected_author:
+
+                        label = (
+                            f"👤 {author_name}  ·  Selected author"
+                        )
+
+                    else:
+
+                        label = (
+                            f"👤 {author_name}"
+                        )
+
+                    st.markdown(
+                        f'''
+                        <a href="{author_url}" target="_self"
+                           style="
+                               display:block;
+                               padding:0.6rem 0.75rem;
+                               margin-bottom:0.5rem;
+                               border:1px solid rgba(128,128,128,0.18);
+                               border-radius:0.5rem;
+                               text-decoration:none;
+                           ">
+                            {label}
+                        </a>
+                        ''',
+                        unsafe_allow_html=True
+                    )
+
+            else:
+
+                st.info(
+                    "Author information is not available "
+                    "for this publication."
+                )
+
+            # ====================================================
+            # INSTITUTIONS REPRESENTED
+            # ====================================================
+
+            st.divider()
+
+            st.markdown(
+                '<div class="section-label">'
+                'Affiliations'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Institutions Represented"
+            )
+
+            institutions = []
+
+            if pd.notna(article["Institution"]):
+
+                institutions = [
+                    institution.strip()
+                    for institution
+                    in str(
+                        article["Institution"]
+                    ).split("|")
+                    if institution.strip()
+                ]
+
+                institutions = list(
+                    dict.fromkeys(
+                        institutions
+                    )
+                )
+
+            if institutions:
+
+                institution_text = " · ".join(
+                    institutions
+                )
+
+                st.write(
+                    institution_text
+                )
+
+            else:
+
+                st.caption(
+                    "Institution information is not "
+                    "available for this publication."
+                )
+
+            st.caption(
+                "Institutions are reported at the article level. "
+                "The current dataset does not preserve the exact "
+                "author-to-institution relationship."
+            )
+
+            # ====================================================
+            # COUNTRIES REPRESENTED
+            # ====================================================
+
+            st.markdown(
+                '<div class="section-label" '
+                'style="margin-top:25px;">'
+                'Geographic Representation'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Countries Represented"
+            )
+
+            countries = []
+
+            if pd.notna(article["Country"]):
+
+                country_codes = [
+                    country.strip()
+                    for country
+                    in str(
+                        article["Country"]
+                    ).split("|")
+                    if country.strip()
+                ]
+
+                country_codes = list(
+                    dict.fromkeys(
+                        country_codes
+                    )
+                )
+
+                for country in country_codes:
+                    country_name = country_code_to_name(
+                        country
+                    )
+
+                    if country_name:
+                        countries.append(
+                            country_name
+                        )
+
+
+            if countries:
+                st.write(
+                    " · ".join(countries)
+                )
+
+            else:
+                st.caption(
+                    "Country information is not "
+                    "available for this publication."
+                )
+
+
+            # ====================================================
+            # RESEARCH TOPICS
+            # ====================================================
+
+            st.divider()
+
+            st.markdown(
+                '<div class="section-label">'
+                'Research Content'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Research Topics"
+            )
+
+            topics = []
+
+            if pd.notna(article["Topic"]):
+
+                topics = [
+                    topic.strip()
+                    for topic
+                    in str(
+                        article["Topic"]
+                    ).split("|")
+                    if topic.strip()
+                ]
+
+                topics = list(
+                    dict.fromkeys(
+                        topics
+                    )
+                )
+
+            if topics:
+
+                st.write(
+                    " · ".join(topics)
+                )
+
+            else:
+                st.caption(
+                    "Topic information is not "
+                    "available for this publication."
+                )
+
+            # ====================================================
+            # KEYWORDS
+            # ====================================================
+
+            st.markdown(
+                '<div class="section-label" '
+                'style="margin-top:25px;">'
+                'Keywords'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            keywords = []
+
+            if pd.notna(article["Keyword"]):
+
+                keywords = [
+                    keyword.strip()
+                    for keyword
+                    in str(
+                        article["Keyword"]
+                    ).split("|")
+                    if keyword.strip()
+                ]
+
+                keywords = list(
+                    dict.fromkeys(
+                        keywords
+                    )
+                )
+
+
+            if keywords:
+
+                st.write(
+                    " · ".join(keywords)
+                )
+
+            else:
+
+                st.caption(
+                    "Keyword information is not "
+                    "available for this publication."
+                )
+
+            # ====================================================
+            # RESEARCH CLASSIFICATION
+            # ====================================================
+
+            st.divider()
+
+            st.markdown(
+                '<div class="section-label">'
+                'OpenAlex Classification'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Research Classification"
+            )
+
+            classification_columns = st.columns(3)
+
+            # ----------------------------------------------------
+            # DOMAIN
+            # ----------------------------------------------------
+
+            with classification_columns[0]:
+
+                st.markdown(
+                    "**Domain**"
+                )
+
+                if pd.notna(article["Domain"]):
+
+                    domains = [
+                        value.strip()
+                        for value
+                        in str(
+                            article["Domain"]
+                        ).split("|")
+                        if value.strip()
+                    ]
+
+                    domains = list(
+                        dict.fromkeys(
+                            domains
+                        )
+                    )
+
+                    st.write(
+                        " · ".join(domains)
+                    )
+
+                else:
+
+                    st.caption(
+                        "Not available"
+                    )
+
+
+            # ----------------------------------------------------
+            # FIELD
+            # ----------------------------------------------------
+
+            with classification_columns[1]:
+
+                st.markdown(
+                    "**Field**"
+                )
+
+                if pd.notna(article["Field"]):
+
+                    fields = [
+                        value.strip()
+                        for value
+                        in str(
+                            article["Field"]
+                        ).split("|")
+                        if value.strip()
+                    ]
+
+                    fields = list(
+                        dict.fromkeys(
+                            fields
+                        )
+                    )
+                    st.write(
+                        " · ".join(fields)
+                    )
+
+                else:
+                    st.caption(
+                        "Not available"
+                    )
+
+            # ----------------------------------------------------
+            # SUBFIELD
+            # ----------------------------------------------------
+
+            with classification_columns[2]:
+
+                st.markdown(
+                    "**Subfield**"
+                )
+
+                if pd.notna(article["Subfield"]):
+
+                    subfields = [
+                        value.strip()
+                        for value
+                        in str(
+                            article["Subfield"]
+                        ).split("|")
+                        if value.strip()
+                    ]
+
+                    subfields = list(
+                        dict.fromkeys(
+                            subfields
+                        )
+                    )
+
+                    st.write(
+                        " · ".join(subfields)
+                    )
+
+                else:
+
+                    st.caption(
+                        "Not available"
+                    )
+
+            # ====================================================
+            # ABSTRACT
+            # ====================================================
+
+            st.divider()
+
+            st.markdown(
+                '<div class="section-label">'
+                'Abstract'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Abstract"
+            )
+
+            if (
+                pd.notna(article["Abstract"])
+                and str(article["Abstract"]).strip()
+            ):
+
+                st.write(
+                    str(
+                        article["Abstract"]
+                    ).strip()
+                )
+
+            else:
+                st.info(
+                    "An abstract is not available "
+                    "for this publication in the current dataset."
+                )
+
+            # ====================================================
+            # ARTICLE INFORMATION
+            # ====================================================
+
+            st.divider()
+
+            st.markdown(
+                '<div class="section-label">'
+                'Publication Details'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            st.subheader(
+                "Article Information"
+            )
+
+            info1, info2 = st.columns(2)
+
+            with info1:
+                st.markdown(
+                    "**Journal**"
+                )
+
+                st.write(
+                    selected_journal
+                )
+
+                st.markdown(
+                    "**Publication Date**"
+                )
+
+                st.write(
+                    article_date_display
+                )
+
+
+            with info2:
+                st.markdown(
+                    "**DOI**"
+                )
+
+                st.write(
+                    selected_doi
+                )
+
+                st.markdown(
+                    "**Citation Count**"
+                )
+
+                st.write(
+                    f"{article_citations:,}"
+                )
+
+            # ====================================================
+            # DOI BUTTON
+            # ====================================================
+
+            doi_value = str(
+                selected_doi
+            ).strip()
+
+            if doi_value:
+
+                if doi_value.startswith(
+                    "https://doi.org/"
+                ):
+
+                    doi_url = doi_value
+
+                elif doi_value.startswith(
+                    "http://doi.org/"
+                ):
+
+                    doi_url = doi_value.replace(
+                        "http://doi.org/",
+                        "https://doi.org/"
+                    )
+
+                else:
+
+                    doi_url = (
+                        f"https://doi.org/"
+                        f"{doi_value}"
+                    )
+
+
+                st.link_button(
+                    "Open DOI ↗",
+                    doi_url
+                )
+
+            # ====================================================
+            # DATA NOTE
+            # ====================================================
+
+            st.caption(
+                "Article metadata and citation information are "
+                "based on the current OpenAlex-derived dataset. "
+                "Citation counts may change over time."
+            )
+
+            # Stop here so the Author Profile does not render below
+            st.stop()
 
         # ====================================================
-        # BACK BUTTON
+        # AUTHOR PROFILE
+        # ====================================================
+
+        # ====================================================
+        # BACK TO AUTHORS
         # ====================================================
 
         if st.button(
@@ -1502,13 +2192,9 @@ elif page == "Authors":
         ):
 
             st.session_state.selected_author = None
-
             st.query_params.clear()
-
             st.query_params["page"] = "Authors"
-
             st.rerun()
-
 
         # ====================================================
         # SELECT AUTHOR ARTICLES
@@ -1516,9 +2202,8 @@ elif page == "Authors":
 
         author_articles = (
             author_df[
-                author_df[
-                    "Author"
-                ] == selected_author
+                author_df["Author"]
+                == selected_author
             ]
             .drop_duplicates(
                 subset="DOI"
@@ -1543,51 +2228,39 @@ elif page == "Authors":
             ):
 
                 st.session_state.selected_author = None
-
                 st.query_params.clear()
-
                 st.query_params["page"] = "Authors"
-
                 st.rerun()
 
             st.stop()
-
 
         # ====================================================
         # AUTHOR METRICS
         # ====================================================
 
         total_papers = (
-            author_articles[
-                "DOI"
-            ].nunique()
+            author_articles["DOI"]
+            .nunique()
         )
 
         total_author_citations = int(
-            author_articles[
-                "Citations"
-            ]
+            author_articles["Citations"]
             .fillna(0)
             .sum()
         )
 
         average_citations = (
-            total_author_citations
-            / total_papers
+            total_author_citations / total_papers
             if total_papers > 0
             else 0
         )
 
         first_year = int(
-            author_articles[
-                "Year"
-            ].min()
+            author_articles["Year"].min()
         )
 
         latest_year = int(
-            author_articles[
-                "Year"
-            ].max()
+            author_articles["Year"].max()
         )
 
 
@@ -1596,9 +2269,7 @@ elif page == "Authors":
         # ====================================================
 
         citation_values = sorted(
-            author_articles[
-                "Citations"
-            ]
+            author_articles["Citations"]
             .fillna(0)
             .astype(int)
             .tolist(),
@@ -1614,10 +2285,8 @@ elif page == "Authors":
 
             if citation_count >= i:
                 h_index = i
-
             else:
                 break
-
 
         # ====================================================
         # AUTHOR INITIALS
@@ -1626,24 +2295,18 @@ elif page == "Authors":
         initials = "".join(
             [
                 word[0].upper()
-
-                for word
-                in selected_author.split()
-
+                for word in selected_author.split()
                 if word
             ][:2]
         )
-
 
         # ====================================================
         # PROFILE HEADER
         # ====================================================
 
-        profile_left, profile_right = (
-            st.columns(
-                [0.7, 5],
-                vertical_alignment="center"
-            )
+        profile_left, profile_right = st.columns(
+            [0.7, 5],
+            vertical_alignment="center"
         )
 
         with profile_left:
@@ -1814,17 +2477,13 @@ elif page == "Authors":
         )
 
         topic_values = split_values(
-            author_articles[
-                "Topic"
-            ]
+            author_articles["Topic"]
         )
 
         if topic_values:
 
             author_topics = (
-                pd.Series(
-                    topic_values
-                )
+                pd.Series(topic_values)
                 .value_counts()
                 .head(10)
                 .reset_index()
@@ -1951,9 +2610,16 @@ elif page == "Authors":
             unsafe_allow_html=True
         )
 
-        st.subheader(
-            "Publications"
+        st.subheader("Publications")
+
+        st.caption(
+            "Click a publication title to view its article profile."
         )
+
+
+        # ====================================================
+        # PREPARE PUBLICATION TABLE
+        # ====================================================
 
         publication_table = (
             author_articles[
@@ -1965,60 +2631,58 @@ elif page == "Authors":
                 ]
             ]
             .sort_values(
-                [
-                    "Year",
-                    "Citations"
-                ],
-                ascending=[
-                    False,
-                    False
-                ]
+                ["Year", "Citations"],
+                ascending=[False, False]
             )
             .copy()
         )
 
 
         # ====================================================
-        # DOI LINKS
+        # CREATE INTERNAL ARTICLE LINKS
         # ====================================================
 
-        publication_table[
-            "DOI Link"
-        ] = (
-            publication_table[
-                "DOI"
-            ]
-            .apply(
-                lambda doi:
-                (
-                    f"https://doi.org/{doi}"
-
-                    if pd.notna(doi)
-                    and str(doi).strip()
-
-                    else None
-                )
+        publication_table["Publication"] = (
+            publication_table.apply(
+                lambda row:
+                f"?page=Authors"
+                f"&author={quote(str(selected_author))}"
+                f"&article={quote(str(row['DOI']))}"
+                f"&title={quote(str(row['Title']))}",
+                axis=1
             )
         )
 
-        publication_table = (
+
+        publication_table["DOI Link"] = (
+            publication_table["DOI"]
+            .apply(make_doi_link)
+        )
+
+
+        # ====================================================
+        # FINAL DISPLAY TABLE
+        # ====================================================
+
+        publication_display = (
             publication_table[
                 [
                     "Year",
-                    "Title",
+                    "Publication",
                     "Citations",
                     "DOI Link"
                 ]
             ]
+            .copy()
         )
 
 
         # ====================================================
-        # PUBLICATION TABLE
+        # DISPLAY PUBLICATIONS
         # ====================================================
 
         st.dataframe(
-            publication_table,
+            publication_display,
             use_container_width=True,
             hide_index=True,
             height=550,
@@ -2032,25 +2696,29 @@ elif page == "Authors":
                         format="%d"
                     ),
 
-                "Title":
-                    st.column_config.TextColumn(
+                "Publication":
+                    st.column_config.LinkColumn(
                         "Publication",
+                        display_text=r"title=([^&]+)",
                         width="large"
                     ),
 
                 "Citations":
                     st.column_config.NumberColumn(
                         "Citations",
-                        format="%d"
+                        format="%d",
+                        width="small"
                     ),
 
                 "DOI Link":
                     st.column_config.LinkColumn(
                         "DOI",
-                        display_text="Open DOI"
+                        display_text="Open DOI",
+                        width="small"
                     )
             }
         )
+
 
 # ============================================================
 # INSTITUTIONS
@@ -2058,26 +2726,12 @@ elif page == "Authors":
 
 elif page == "Institutions":
 
-    # --------------------------------------------------------
-    # PAGE HEADER
-    # --------------------------------------------------------
-
-    st.markdown(
-        '<div class="section-label">Research Community</div>',
-        unsafe_allow_html=True
+    institution_from_url = st.query_params.get("institution")
+    selected_institution = (
+        unquote(str(institution_from_url))
+        if institution_from_url
+        else None
     )
-
-    st.header("Institutions")
-
-    st.caption(
-        f"{selected_journal} · "
-        f"{year_range[0]}–{year_range[1]}"
-    )
-
-
-    # ========================================================
-    # BUILD INSTITUTION-LEVEL DATA
-    # ========================================================
 
     institution_rows = []
 
@@ -2086,14 +2740,11 @@ elif page == "Institutions":
         if pd.isna(row["Institution"]):
             continue
 
-        institutions = [
+        institutions = list(dict.fromkeys(
             institution.strip()
             for institution in str(row["Institution"]).split("|")
             if institution.strip()
-        ]
-
-        # Remove duplicates within the same article
-        institutions = list(dict.fromkeys(institutions))
+        ))
 
         for institution in institutions:
 
@@ -2101,232 +2752,144 @@ elif page == "Institutions":
                 "Institution": institution,
                 "DOI": row["DOI"],
                 "Year": row["Year"],
+                "Date": row["Date"],
                 "Citations": row["Citation count"],
-                "Title": row["Title"]
+                "Title": row["Title"],
+                "Topic": row["Topic"],
+                "Keyword": row["Keyword"],
+                "Author": row["Author"],
+                "Country": row["Country"],
+                "Open access": row["Open access"]
             })
 
+    institution_df = pd.DataFrame(institution_rows)
 
-    institution_df = pd.DataFrame(
-        institution_rows
+    if institution_df.empty:
+
+        st.warning(
+            "No institution information is available "
+            "for the selected period."
+        )
+        st.stop()
+
+    institution_summary = (
+        institution_df
+        .groupby("Institution")
+        .agg(
+            Publications=("DOI", "nunique"),
+            Citations=("Citations", "sum"),
+            First_Publication=("Year", "min"),
+            Latest_Publication=("Year", "max")
+        )
+        .reset_index()
     )
 
+    if selected_institution is None:
 
-    if not institution_df.empty:
-
-        # ====================================================
-        # INSTITUTION SUMMARY
-        # ====================================================
-
-        institution_summary = (
-            institution_df
-            .groupby("Institution")
-            .agg(
-                Publications=("DOI", "nunique"),
-                Citations=("Citations", "sum"),
-                First_Publication=("Year", "min"),
-                Latest_Publication=("Year", "max")
-            )
-            .reset_index()
+        st.markdown(
+            '<div class="section-label">Research Community</div>',
+            unsafe_allow_html=True
+        )
+        st.header("Institutions")
+        st.caption(
+            f"{selected_journal} · "
+            f"{year_range[0]}–{year_range[1]}"
         )
 
-
-        # ====================================================
-        # KPI CARDS
-        # ====================================================
-
-        total_institutions = (
-            institution_summary[
-                "Institution"
-            ].nunique()
-        )
-
+        total_institutions = institution_summary["Institution"].nunique()
         active_institutions = (
-            institution_summary[
-                "Publications"
-            ] >= 5
+            institution_summary["Publications"] >= 5
         ).sum()
-
-        most_publications = (
-            institution_summary[
-                "Publications"
-            ].max()
-        )
-
-        highest_citations = (
-            institution_summary[
-                "Citations"
-            ].max()
-        )
-
+        most_publications = institution_summary["Publications"].max()
+        highest_citations = institution_summary["Citations"].max()
 
         k1, k2, k3, k4 = st.columns(4)
-
-        k1.metric(
-            "Institutions",
-            f"{total_institutions:,}"
-        )
-
+        k1.metric("Institutions", f"{total_institutions:,}")
         k2.metric(
             "Institutions with 5+ Papers",
             f"{active_institutions:,}"
         )
+        k3.metric("Most Publications", f"{most_publications:,}")
+        k4.metric("Highest Citation Total", f"{highest_citations:,}")
 
-        k3.metric(
-            "Most Publications",
-            f"{most_publications:,}"
-        )
-
-        k4.metric(
-            "Highest Citation Total",
-            f"{highest_citations:,}"
-        )
-
-
-        # ====================================================
-        # SEARCH / FILTERS
-        # ====================================================
-
+        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(
-            "<br>",
+            '<div class="section-label">Find Institutions</div>',
             unsafe_allow_html=True
         )
 
-        st.markdown(
-            '<div class="section-label">'
-            'Find Institutions'
-            '</div>',
-            unsafe_allow_html=True
-        )
-
-
-        search_col, min_col, sort_col = (
-            st.columns(
-                [2.5, 1, 1.4]
-            )
-        )
-
+        search_col, min_col, sort_col = st.columns([2.5, 1, 1.4])
 
         with search_col:
-
-            institution_search = (
-                st.text_input(
-                    "Search institution",
-                    placeholder=(
-                        "Search by institution name..."
-                    )
-                )
+            institution_search = st.text_input(
+                "Search institution",
+                placeholder="Search by institution name..."
             )
-
 
         with min_col:
-
-            min_institution_papers = (
-                st.number_input(
-                    "Minimum papers",
-                    min_value=1,
-                    value=1,
-                    step=1,
-                    key="institution_min_papers"
-                )
+            min_institution_papers = st.number_input(
+                "Minimum papers",
+                min_value=1,
+                value=1,
+                step=1,
+                key="institution_min_papers"
             )
-
 
         with sort_col:
-
-            institution_sort = (
-                st.selectbox(
-                    "Sort by",
-                    [
-                        "Publications",
-                        "Citations",
-                        "Latest Publication",
-                        "Institution"
-                    ],
-                    key="institution_sort"
-                )
+            institution_sort = st.selectbox(
+                "Sort by",
+                [
+                    "Publications",
+                    "Citations",
+                    "Latest Publication",
+                    "Institution"
+                ],
+                key="institution_sort"
             )
 
-
-        # ====================================================
-        # APPLY FILTERS
-        # ====================================================
-
-        display_institutions = (
-            institution_summary[
-                institution_summary[
-                    "Publications"
-                ] >= min_institution_papers
-            ]
-            .copy()
-        )
-
+        display_institutions = institution_summary[
+            institution_summary["Publications"] >= min_institution_papers
+        ].copy()
 
         if institution_search:
-
-            display_institutions = (
-                display_institutions[
-                    display_institutions[
-                        "Institution"
-                    ]
-                    .str.contains(
-                        institution_search,
-                        case=False,
-                        na=False
-                    )
-                ]
-            )
-
+            display_institutions = display_institutions[
+                display_institutions["Institution"].str.contains(
+                    institution_search,
+                    case=False,
+                    na=False,
+                    regex=False
+                )
+            ]
 
         sort_mapping = {
-
-            "Publications":
-                "Publications",
-
-            "Citations":
-                "Citations",
-
-            "Latest Publication":
-                "Latest_Publication",
-
-            "Institution":
-                "Institution"
+            "Publications": "Publications",
+            "Citations": "Citations",
+            "Latest Publication": "Latest_Publication",
+            "Institution": "Institution"
         }
 
+        display_institutions = display_institutions.sort_values(
+            sort_mapping[institution_sort],
+            ascending=institution_sort == "Institution"
+        )
 
-        display_institutions = (
-            display_institutions
-            .sort_values(
-                sort_mapping[
-                    institution_sort
-                ],
-                ascending=(
-                    institution_sort
-                    == "Institution"
+        display_institutions["Institution Profile"] = (
+            display_institutions["Institution"].apply(
+                lambda name: (
+                    f"?page=Institutions"
+                    f"&institution={quote(str(name))}"
+                    f"&name={quote(str(name))}"
                 )
             )
         )
 
-
-        # ====================================================
-        # REGISTER HEADER
-        # ====================================================
-
         st.divider()
-
-        title_col, count_col = (
-            st.columns([3, 1])
-        )
-
+        title_col, count_col = st.columns([3, 1])
 
         with title_col:
-
-            st.subheader(
-                "Institution Register"
-            )
-
+            st.subheader("Institution Register")
 
         with count_col:
-
             st.markdown(
                 f"""
                 <div style="
@@ -2342,103 +2905,286 @@ elif page == "Institutions":
                 unsafe_allow_html=True
             )
 
-
-        # ====================================================
-        # ROW LIMIT
-        # ====================================================
-
-        institution_limit = (
-            st.selectbox(
-                "Show",
-                [25, 50, 100, 250],
-                index=1,
-                format_func=lambda x:
-                    f"{x} institutions",
-                key="institution_rows"
-            )
+        institution_limit = st.selectbox(
+            "Show",
+            [25, 50, 100, 250],
+            index=1,
+            format_func=lambda x: f"{x} institutions",
+            key="institution_rows"
         )
 
-
-        table_df = (
-            display_institutions
-            .head(institution_limit)
-            .copy()
-        )
-
-
-        table_df = table_df.rename(
+        table_df = display_institutions.head(institution_limit).rename(
             columns={
-
-                "First_Publication":
-                    "First Publication",
-
-                "Latest_Publication":
-                    "Latest Publication"
+                "First_Publication": "First Publication",
+                "Latest_Publication": "Latest Publication"
             }
         )
 
-
-        # ====================================================
-        # TABLE
-        # ====================================================
+        institution_display = table_df[
+            [
+                "Institution Profile",
+                "Publications",
+                "Citations",
+                "First Publication",
+                "Latest Publication"
+            ]
+        ]
 
         st.dataframe(
-            table_df,
-
+            institution_display,
             use_container_width=True,
-
             hide_index=True,
-
             height=650,
-
             column_config={
-
-                "Institution":
-                    st.column_config.TextColumn(
-                        "Institution",
-                        width="large"
-                    ),
-
-                "Publications":
-                    st.column_config.NumberColumn(
-                        "Papers",
-                        format="%d"
-                    ),
-
-                "Citations":
-                    st.column_config.NumberColumn(
-                        "Citations",
-                        format="%d"
-                    ),
-
-                "First Publication":
-                    st.column_config.NumberColumn(
-                        "First",
-                        format="%d"
-                    ),
-
-                "Latest Publication":
-                    st.column_config.NumberColumn(
-                        "Latest",
-                        format="%d"
-                    )
+                "Institution Profile": st.column_config.LinkColumn(
+                    "Institution",
+                    display_text=r"name=([^&]+)",
+                    width="large"
+                ),
+                "Publications": st.column_config.NumberColumn(
+                    "Papers",
+                    format="%d"
+                ),
+                "Citations": st.column_config.NumberColumn(
+                    "Citations",
+                    format="%d"
+                ),
+                "First Publication": st.column_config.NumberColumn(
+                    "First",
+                    format="%d"
+                ),
+                "Latest Publication": st.column_config.NumberColumn(
+                    "Latest",
+                    format="%d"
+                )
             }
         )
 
-
         st.caption(
-            "Institution counts represent participation "
-            "in publications. A publication involving "
-            "multiple institutions is counted once for "
-            "each participating institution."
+            "Institution counts represent participation in publications. "
+            "A publication involving multiple institutions is counted "
+            "once for each participating institution."
         )
-
 
     else:
 
-        st.warning(
-            "No institution information is available "
-            "for the selected period."
+        if st.button("← Back to Institutions"):
+            st.query_params.clear()
+            st.query_params["page"] = "Institutions"
+            st.rerun()
+
+        institution_articles = institution_df[
+            institution_df["Institution"] == selected_institution
+        ].drop_duplicates(subset=["DOI"]).copy()
+
+        if institution_articles.empty:
+            st.warning(
+                "The selected institution could not be found within "
+                "the current filters."
+            )
+            st.stop()
+
+        st.markdown(
+            '<div class="section-label">Institution Profile</div>',
+            unsafe_allow_html=True
+        )
+        st.title(selected_institution)
+        st.caption(
+            f"{selected_journal} · "
+            f"{year_range[0]}–{year_range[1]}"
+        )
+
+        total_papers = institution_articles["DOI"].nunique()
+        total_citations = institution_articles["Citations"].fillna(0).sum()
+        average_citations = (
+            total_citations / total_papers if total_papers else 0
+        )
+        first_year = int(institution_articles["Year"].min())
+        latest_year = int(institution_articles["Year"].max())
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Publications", f"{total_papers:,}")
+        m2.metric("Total Citations", f"{int(total_citations):,}")
+        m3.metric("Avg. Citations / Paper", f"{average_citations:,.1f}")
+
+        m4, m5 = st.columns(2)
+        m4.metric("First Publication", first_year)
+        m5.metric("Latest Publication", latest_year)
+
+        st.divider()
+        st.markdown(
+            '<div class="section-label">Publication Activity</div>',
+            unsafe_allow_html=True
+        )
+        st.subheader("Output Over Time")
+
+        yearly_output = (
+            institution_articles.groupby("Year")
+            .agg(Publications=("DOI", "nunique"))
+            .reset_index()
+            .sort_values("Year")
+        )
+        output_fig = px.bar(yearly_output, x="Year", y="Publications")
+        output_fig.update_layout(
+            xaxis_title=None,
+            yaxis_title="Publications",
+            showlegend=False,
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+        st.plotly_chart(output_fig, use_container_width=True)
+
+        st.divider()
+        st.markdown(
+            '<div class="section-label">Research Focus</div>',
+            unsafe_allow_html=True
+        )
+        st.subheader("Leading Research Topics")
+
+        topic_rows = []
+        for _, row in institution_articles.iterrows():
+            if pd.isna(row["Topic"]):
+                continue
+            topics = list(dict.fromkeys(
+                topic.strip()
+                for topic in str(row["Topic"]).split("|")
+                if topic.strip()
+            ))
+            for topic in topics:
+                topic_rows.append({
+                    "Topic": topic,
+                    "DOI": row["DOI"],
+                    "Citations": row["Citations"]
+                })
+
+        institution_topics = pd.DataFrame(topic_rows)
+        if not institution_topics.empty:
+            topic_summary = (
+                institution_topics.groupby("Topic")
+                .agg(
+                    Publications=("DOI", "nunique"),
+                    Citations=("Citations", "sum")
+                )
+                .reset_index()
+                .sort_values(
+                    ["Publications", "Citations"],
+                    ascending=[False, False]
+                )
+                .head(10)
+            )
+            topic_fig = px.bar(
+                topic_summary.sort_values("Publications"),
+                x="Publications",
+                y="Topic",
+                orientation="h"
+            )
+            topic_fig.update_layout(
+                xaxis_title="Publications",
+                yaxis_title=None,
+                showlegend=False,
+                margin=dict(l=20, r=20, t=20, b=20)
+            )
+            st.plotly_chart(topic_fig, use_container_width=True)
+        else:
+            st.caption(
+                "Topic information is not available for this institution."
+            )
+
+        st.divider()
+        st.markdown(
+            '<div class="section-label">Geographic Participation</div>',
+            unsafe_allow_html=True
+        )
+        st.subheader("Countries Represented")
+
+        institution_countries = []
+        for value in institution_articles["Country"].dropna():
+            for code in str(value).split("|"):
+                code = code.strip()
+                if code:
+                    country_name = country_code_to_name(code)
+                    if country_name:
+                        institution_countries.append(country_name)
+
+        institution_countries = sorted(set(institution_countries))
+        if institution_countries:
+            st.write(" · ".join(institution_countries))
+        else:
+            st.caption("Country information is not available.")
+
+        st.caption(
+            "Countries are reported at the article level. They should not "
+            "be interpreted as the physical location of the selected "
+            "institution."
+        )
+
+        st.divider()
+        st.markdown(
+            '<div class="section-label">Research Output</div>',
+            unsafe_allow_html=True
+        )
+        st.subheader("Publications")
+        st.caption("Click a publication title to view its article profile.")
+
+        publication_table = (
+            institution_articles[["Year", "Title", "Citations", "DOI"]]
+            .sort_values(["Year", "Citations"], ascending=[False, False])
+            .copy()
+        )
+        publication_table["Publication"] = publication_table.apply(
+            lambda row: (
+                f"?page=Authors"
+                f"&article={quote(str(row['DOI']))}"
+                f"&title={quote(str(row['Title']))}"
+            ),
+            axis=1
+        )
+
+        def institution_doi_link(doi):
+            if pd.isna(doi):
+                return None
+            doi = str(doi).strip()
+            if not doi:
+                return None
+            if doi.startswith("https://doi.org/"):
+                return doi
+            if doi.startswith("http://doi.org/"):
+                return doi.replace("http://doi.org/", "https://doi.org/")
+            return f"https://doi.org/{doi}"
+
+        publication_table["DOI Link"] = publication_table["DOI"].apply(
+            institution_doi_link
+        )
+        publication_display = publication_table[
+            ["Year", "Publication", "Citations", "DOI Link"]
+        ]
+
+        st.dataframe(
+            publication_display,
+            use_container_width=True,
+            hide_index=True,
+            height=550,
+            column_config={
+                "Year": st.column_config.NumberColumn(
+                    "Year", format="%d", width="small"
+                ),
+                "Publication": st.column_config.LinkColumn(
+                    "Publication",
+                    display_text=r"title=([^&]+)",
+                    width="large"
+                ),
+                "Citations": st.column_config.NumberColumn(
+                    "Citations", format="%d", width="small"
+                ),
+                "DOI Link": st.column_config.LinkColumn(
+                    "DOI", display_text="Open DOI", width="small"
+                )
+            }
+        )
+
+        st.caption(
+            "Institution profiles represent participation in Decision "
+            "Support Systems publications. The current dataset does not "
+            "preserve exact author-to-institution relationships."
         )
 
 
