@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import pycountry
 import plotly.express as px
-import plotly.express as px
 from urllib.parse import quote, unquote
 
 
@@ -22,112 +21,447 @@ st.set_page_config(
 # ============================================================
 
 st.markdown("""
-
 <style>
 
-/* APP */
+/* ==========================================================
+   DESIGN TOKENS
+   ========================================================== */
+
+:root {
+    --navy: #17243A;
+    --navy-soft: #223552;
+    --blue: #2563EB;
+    --blue-soft: #EFF6FF;
+    --text: #172033;
+    --muted: #667085;
+    --border: #E5E7EB;
+    --surface: #FFFFFF;
+    --surface-soft: #F8FAFC;
+}
+
+
+/* ==========================================================
+   MAIN APPLICATION
+   ========================================================== */
 
 .block-container {
-
     max-width: 1450px;
-    padding-top: 4.5rem !important;
-    padding-bottom: 3rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-
+    padding-top: 3.2rem !important;
+    padding-bottom: 4rem;
+    padding-left: 3.2rem;
+    padding-right: 3.2rem;
 }
 
-/* TYPOGRAPHY */
+
+/* ==========================================================
+   TYPOGRAPHY
+   ========================================================== */
+
+html,
+body,
+[class*="css"] {
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
 h1 {
-    font-size: 2.15rem !important;
-    font-weight: 700 !important;
-    letter-spacing: -0.03em;
-
+    font-size: 2.25rem !important;
+    font-weight: 720 !important;
+    letter-spacing: -0.035em !important;
+    line-height: 1.15 !important;
+    color: var(--text);
 }
+
 h2 {
-
     font-size: 1.55rem !important;
-    font-weight: 650 !important;
-
+    font-weight: 680 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--text);
 }
 
 h3 {
     font-size: 1.15rem !important;
-    font-weight: 600 !important;
-
+    font-weight: 650 !important;
+    color: var(--text);
 }
 
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    border-right: 1px solid rgba(128,128,128,0.15);
+p {
+    line-height: 1.65;
+}
 
+
+/* ==========================================================
+   SIDEBAR
+   ========================================================== */
+
+section[data-testid="stSidebar"] {
+    border-right: 1px solid var(--border);
+    background: #FAFBFC;
 }
 
 section[data-testid="stSidebar"] .block-container {
     padding-top: 2rem;
 }
 
-/* METRIC CARDS */
-div[data-testid="stMetric"] {
-    background: rgba(128,128,128,0.055);
-    border: 1px solid rgba(128,128,128,0.14);
-    border-radius: 12px;
-    padding: 18px 20px;
+section[data-testid="stSidebar"] h1 {
+    font-size: 1.35rem !important;
+    letter-spacing: -0.02em !important;
+}
 
+
+/* Sidebar radio */
+
+section[data-testid="stSidebar"] div[role="radiogroup"] {
+    gap: 0.15rem;
+}
+
+
+/* ==========================================================
+   SECTION LABELS
+   ========================================================== */
+
+.section-label {
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: #2563EB;
+    margin-bottom: 0.30rem;
+}
+
+.small-muted {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+
+/* ==========================================================
+   METRIC CARDS
+   ========================================================== */
+
+div[data-testid="stMetric"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    min-height: 112px;
+    box-shadow:
+        0 1px 2px rgba(16, 24, 40, 0.02);
 }
 
 div[data-testid="stMetricLabel"] {
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.01em;
 }
 
 div[data-testid="stMetricValue"] {
     font-size: 1.75rem;
-    font-weight: 650;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
 }
 
-/* INPUTS */
+
+/* ==========================================================
+   DIVIDERS
+   ========================================================== */
+
+hr {
+    border: none !important;
+    border-top: 1px solid var(--border) !important;
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+    opacity: 1 !important;
+}
+
+
+/* ==========================================================
+   INPUTS
+   ========================================================== */
 
 div[data-baseweb="input"] {
-    border-radius: 9px;
+    border-radius: 8px !important;
 }
 
 div[data-baseweb="select"] > div {
-    border-radius: 9px;
+    border-radius: 8px !important;
 }
 
-/* DATAFRAME */
+div[data-baseweb="base-input"] {
+    border-radius: 8px !important;
+}
+
+
+/* ==========================================================
+   BUTTONS
+   ========================================================== */
+
+.stButton > button {
+    border-radius: 7px;
+    border: 1px solid #D0D5DD;
+    font-weight: 600;
+    min-height: 39px;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.stButton > button:hover {
+    border-color: #2563EB;
+    color: #2563EB;
+}
+
+
+/* ==========================================================
+   LINK BUTTONS
+   ========================================================== */
+
+.stLinkButton a {
+    border-radius: 7px !important;
+    font-weight: 600 !important;
+}
+
+
+/* ==========================================================
+   DATAFRAMES
+   ========================================================== */
 
 div[data-testid="stDataFrame"] {
-    border: 1px solid rgba(128,128,128,0.15);
-    border-radius: 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
     overflow: hidden;
 }
 
-/* DIVIDERS */
 
-hr {
-    margin-top: 1.4rem !important;
-    margin-bottom: 1.4rem !important;
-    opacity: 0.2;
+/* ==========================================================
+   ALERTS / INFORMATION BOXES
+   ========================================================== */
+
+div[data-testid="stAlert"] {
+    border-radius: 8px;
 }
 
-/* CUSTOM TEXT */
 
-.small-muted {
-    font-size: 0.85rem;
-    opacity: 0.65;
+/* ==========================================================
+   PLOTLY CHART CONTAINERS
+   ========================================================== */
+
+div[data-testid="stPlotlyChart"] {
+    background: var(--surface);
+    border-radius: 8px;
 }
 
-.section-label {
-    font-size: 0.75rem;
+
+/* ==========================================================
+   CAPTIONS
+   ========================================================== */
+
+div[data-testid="stCaptionContainer"] {
+    color: var(--muted);
+}
+
+
+/* ==========================================================
+   PROFILE HERO
+   Reusable later for Author / Institution / Country /
+   Topic / Article profiles
+   ========================================================== */
+
+.profile-hero {
+    background:
+        linear-gradient(
+            135deg,
+            #17243A 0%,
+            #223552 100%
+        );
+
+    border-radius: 12px;
+    padding: 30px 34px;
+    margin-bottom: 24px;
+    color: white;
+}
+
+.profile-hero-label {
+    font-size: 0.70rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    opacity: 0.55;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
+    color: #AFC7EE;
+    margin-bottom: 8px;
+}
+
+.profile-hero-title {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 720;
+    letter-spacing: -0.03em;
+    color: white;
+    margin: 0;
+}
+
+.profile-hero-subtitle {
+    font-size: 0.92rem;
+    color: #CBD5E1;
+    margin-top: 8px;
+}
+
+
+/* ==========================================================
+   INITIALS AVATAR
+   ========================================================== */
+
+.profile-avatar {
+    width: 78px;
+    height: 78px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.12);
+
+    border:
+        1px solid rgba(255,255,255,0.20);
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+
+/* ==========================================================
+   PROFILE INFORMATION GRID
+   ========================================================== */
+
+.profile-info-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    margin-top: 12px;
+    margin-bottom: 24px;
+}
+
+.profile-info-item {
+    padding: 18px 20px;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+.profile-info-item:nth-child(odd) {
+    border-right:
+        1px solid var(--border);
+}
+
+.profile-info-label {
+    font-size: 0.73rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+
+.profile-info-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+
+/* ==========================================================
+   CONTENT CARD
+   ========================================================== */
+
+.research-card {
+    background: var(--surface);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 22px 24px;
+
+    margin-bottom: 20px;
+}
+
+.research-card-title {
+    font-size: 1rem;
+    font-weight: 650;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.research-card-caption {
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+
+
+/* ==========================================================
+   PUBLICATION META / BADGES
+   ========================================================== */
+
+.journal-badge {
+    display: inline-block;
+
+    padding: 3px 8px;
+
+    border-radius: 5px;
+
+    background: #EFF6FF;
+
+    color: #1D4ED8;
+
+    font-size: 0.72rem;
+
+    font-weight: 650;
+}
+
+
+/* ==========================================================
+   RESPONSIVE DESIGN
+   ========================================================== */
+
+@media (max-width: 900px) {
+
+    .block-container {
+        padding-left: 1.3rem;
+        padding-right: 1.3rem;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-info-item:nth-child(odd) {
+        border-right: none;
+    }
+
 }
 
 </style>
- 
 """, unsafe_allow_html=True)
 
 # ============================================================
@@ -375,6 +709,622 @@ def make_doi_link(doi):
             "https://doi.org/"
         )
     return f"https://doi.org/{doi}"
+
+
+# ============================================================
+# ARTICLE PROFILE HELPER
+# ============================================================
+
+def render_article_profile(
+    selected_doi,
+    filtered_df,
+    selected_journal,
+    return_page,
+    return_label,
+    return_params=None,
+    selected_author=None
+):
+
+    # ========================================================
+    # FIND SELECTED ARTICLE
+    # ========================================================
+
+    article_match = filtered_df[
+        filtered_df["DOI"].apply(normalize_doi)
+        ==
+        normalize_doi(selected_doi)
+    ].copy()
+
+    # ========================================================
+    # BACK NAVIGATION HELPER
+    # ========================================================
+
+    def go_back():
+
+        st.query_params.clear()
+        st.query_params["page"] = return_page
+
+        if return_params:
+
+            for key, value in return_params.items():
+
+                if value is not None:
+                    st.query_params[key] = str(value)
+
+        st.rerun()
+
+    # ========================================================
+    # ARTICLE NOT FOUND
+    # ========================================================
+
+    if article_match.empty:
+
+        st.warning(
+            "This article could not be found within "
+            "the currently selected journal and year filters."
+        )
+
+        if st.button(
+            f"← Back to {return_label}",
+            key="article_not_found_back"
+        ):
+            go_back()
+
+        st.stop()
+
+    # One DOI = one article in cleaned dataset
+    article = article_match.iloc[0]
+
+    # ========================================================
+    # BACK BUTTON
+    # ========================================================
+
+    if st.button(
+        f"← Back to {return_label}",
+        key="article_profile_back"
+    ):
+        go_back()
+
+    # ========================================================
+    # BASIC ARTICLE INFORMATION
+    # ========================================================
+
+    article_title = (
+        str(article["Title"])
+        if pd.notna(article["Title"])
+        else "Untitled publication"
+    )
+
+    article_year = (
+        int(article["Year"])
+        if pd.notna(article["Year"])
+        else None
+    )
+
+    article_citations = (
+        int(article["Citation count"])
+        if pd.notna(article["Citation count"])
+        else 0
+    )
+
+    article_date = article["Date"]
+
+    if pd.notna(article_date):
+
+        try:
+            article_date_display = pd.to_datetime(
+                article_date
+            ).strftime("%B %d, %Y")
+
+        except Exception:
+            article_date_display = str(article_date)
+
+    else:
+        article_date_display = "Not available"
+
+    # ========================================================
+    # OPEN ACCESS
+    # ========================================================
+
+    open_access = (
+        str(article["Open access"])
+        if pd.notna(article["Open access"])
+        else "Unknown"
+    )
+
+    # ========================================================
+    # ARTICLE HEADER
+    # ========================================================
+
+    st.markdown(
+        '<div class="section-label">Article Profile</div>',
+        unsafe_allow_html=True
+    )
+
+    st.title(article_title)
+
+    st.caption(
+        f"{selected_journal}"
+        +
+        (
+            f" · {article_year}"
+            if article_year
+            else ""
+        )
+    )
+
+    # ========================================================
+    # ARTICLE METRICS
+    # ========================================================
+
+    st.markdown(
+        "<br>",
+        unsafe_allow_html=True
+    )
+
+    metric1, metric2, metric3 = st.columns(3)
+
+    metric1.metric(
+        "Citations",
+        f"{article_citations:,}"
+    )
+
+    metric2.metric(
+        "Open Access",
+        open_access
+    )
+
+    metric3.metric(
+        "Publication Year",
+        article_year
+        if article_year
+        else "Unknown"
+    )
+
+    # ========================================================
+    # AUTHORS & CO-AUTHORS
+    # ========================================================
+
+    st.divider()
+
+    st.markdown(
+        '<div class="section-label">Research Team</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Authors & Co-authors"
+    )
+
+    article_authors = split_cell(
+        article["Author"]
+    )
+
+    if article_authors:
+
+        author_links = pd.DataFrame(
+            {
+                "Author": article_authors
+            }
+        )
+
+        author_links["Profile"] = (
+            author_links["Author"]
+            .apply(
+                lambda name:
+                    f"?page=Authors"
+                    f"&author={quote(str(name))}"
+                    f"&name={quote(str(name))}"
+            )
+        )
+
+        author_links["Context"] = (
+            author_links["Author"]
+            .apply(
+                lambda name:
+                    "Selected author"
+                    if (
+                        selected_author
+                        and name == selected_author
+                    )
+                    else ""
+            )
+        )
+
+        st.dataframe(
+            author_links[
+                [
+                    "Profile",
+                    "Context"
+                ]
+            ],
+
+            use_container_width=True,
+            hide_index=True,
+
+            column_config={
+
+                "Profile":
+                    st.column_config.LinkColumn(
+                        "Author",
+                        display_text=r"name=([^&]+)",
+                        width="large"
+                    ),
+
+                "Context":
+                    st.column_config.TextColumn(
+                        "",
+                        width="medium"
+                    )
+            }
+        )
+
+    else:
+
+        st.info(
+            "Author information is not available "
+            "for this publication."
+        )
+
+    # ========================================================
+    # INSTITUTIONS REPRESENTED
+    # ========================================================
+
+    st.divider()
+
+    st.markdown(
+        '<div class="section-label">Affiliations</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Institutions Represented"
+    )
+
+    institutions = split_cell(
+        article["Institution"]
+    )
+
+    if institutions:
+
+        st.write(
+            " · ".join(institutions)
+        )
+
+    else:
+
+        st.caption(
+            "Institution information is not available "
+            "for this publication."
+        )
+
+    st.caption(
+        "Institutions are reported at the article level. "
+        "The current dataset does not preserve the exact "
+        "author-to-institution relationship."
+    )
+
+    # ========================================================
+    # COUNTRIES REPRESENTED
+    # ========================================================
+
+    st.markdown(
+        '<div class="section-label" '
+        'style="margin-top:25px;">'
+        'Geographic Representation'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Countries Represented"
+    )
+
+    countries = []
+
+    for country_code in split_cell(
+        article["Country"]
+    ):
+
+        country_name = country_code_to_name(
+            country_code
+        )
+
+        if country_name:
+            countries.append(
+                country_name
+            )
+
+    countries = list(
+        dict.fromkeys(countries)
+    )
+
+    if countries:
+
+        st.write(
+            " · ".join(countries)
+        )
+
+    else:
+
+        st.caption(
+            "Country information is not available "
+            "for this publication."
+        )
+
+    # ========================================================
+    # RESEARCH TOPICS
+    # ========================================================
+
+    st.divider()
+
+    st.markdown(
+        '<div class="section-label">Research Content</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Research Topics"
+    )
+
+    topics = split_cell(
+        article["Topic"]
+    )
+
+    if topics:
+
+        st.write(
+            " · ".join(topics)
+        )
+
+    else:
+
+        st.caption(
+            "Topic information is not available "
+            "for this publication."
+        )
+
+    # ========================================================
+    # KEYWORDS
+    # ========================================================
+
+    st.markdown(
+        '<div class="section-label" '
+        'style="margin-top:25px;">'
+        'Keywords'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    keywords = split_cell(
+        article["Keyword"]
+    )
+
+    if keywords:
+
+        st.write(
+            " · ".join(keywords)
+        )
+
+    else:
+
+        st.caption(
+            "Keyword information is not available "
+            "for this publication."
+        )
+
+    # ========================================================
+    # RESEARCH CLASSIFICATION
+    # ========================================================
+
+    st.divider()
+
+    st.markdown(
+        '<div class="section-label">'
+        'OpenAlex Classification'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Research Classification"
+    )
+
+    classification_columns = st.columns(3)
+
+    # --------------------------------------------------------
+    # DOMAIN
+    # --------------------------------------------------------
+
+    with classification_columns[0]:
+
+        st.markdown(
+            "**Domain**"
+        )
+
+        domains = split_cell(
+            article["Domain"]
+        )
+
+        if domains:
+
+            st.write(
+                " · ".join(domains)
+            )
+
+        else:
+
+            st.caption(
+                "Not available"
+            )
+
+    # --------------------------------------------------------
+    # FIELD
+    # --------------------------------------------------------
+
+    with classification_columns[1]:
+
+        st.markdown(
+            "**Field**"
+        )
+
+        fields = split_cell(
+            article["Field"]
+        )
+
+        if fields:
+
+            st.write(
+                " · ".join(fields)
+            )
+
+        else:
+
+            st.caption(
+                "Not available"
+            )
+
+    # --------------------------------------------------------
+    # SUBFIELD
+    # --------------------------------------------------------
+
+    with classification_columns[2]:
+
+        st.markdown(
+            "**Subfield**"
+        )
+
+        subfields = split_cell(
+            article["Subfield"]
+        )
+
+        if subfields:
+
+            st.write(
+                " · ".join(subfields)
+            )
+
+        else:
+
+            st.caption(
+                "Not available"
+            )
+
+    # ========================================================
+    # ABSTRACT
+    # ========================================================
+
+    st.divider()
+
+    st.markdown(
+        '<div class="section-label">Abstract</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Abstract"
+    )
+
+    if (
+        pd.notna(article["Abstract"])
+        and
+        str(article["Abstract"]).strip()
+    ):
+
+        st.write(
+            str(
+                article["Abstract"]
+            ).strip()
+        )
+
+    else:
+
+        st.info(
+            "An abstract is not available for this "
+            "publication in the current dataset."
+        )
+
+    # ========================================================
+    # ARTICLE INFORMATION
+    # ========================================================
+
+    st.divider()
+
+    st.markdown(
+        '<div class="section-label">'
+        'Publication Details'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    st.subheader(
+        "Article Information"
+    )
+
+    info1, info2 = st.columns(2)
+
+    with info1:
+
+        st.markdown(
+            "**Journal**"
+        )
+
+        st.write(
+            selected_journal
+        )
+
+        st.markdown(
+            "**Publication Date**"
+        )
+
+        st.write(
+            article_date_display
+        )
+
+    with info2:
+
+        st.markdown(
+            "**DOI**"
+        )
+
+        st.write(
+            selected_doi
+        )
+
+        st.markdown(
+            "**Citation Count**"
+        )
+
+        st.write(
+            f"{article_citations:,}"
+        )
+
+    # ========================================================
+    # DOI BUTTON
+    # ========================================================
+
+    doi_url = make_doi_link(
+        selected_doi
+    )
+
+    if doi_url:
+
+        st.link_button(
+            "Open DOI ↗",
+            doi_url
+        )
+
+    # ========================================================
+    # DATA NOTE
+    # ========================================================
+
+    st.caption(
+        "Article metadata and citation information are "
+        "based on the current OpenAlex-derived dataset. "
+        "Citation counts may change over time."
+    )
+
+    st.stop()
 
 # ============================================================
 # SESSION STATE
@@ -1284,9 +2234,9 @@ elif page == "Authors":
                     "Author",
                     "Publications",
                     "Citations",
-                    "Citations_per_Paper",
-                    "First_Publication",
-                    "Latest_Publication"
+                    "Citations / Paper",
+                    "First",
+                    "Latest"
                 ]
             ]
             .head(100)
@@ -1460,724 +2410,21 @@ elif page == "Authors":
                 str(article_from_url)
             )
 
-            # ====================================================
-            # FIND SELECTED ARTICLE
-            # ====================================================
+            render_article_profile(
+                selected_doi=selected_doi,
+                filtered_df=filtered_df,
+                selected_journal=selected_journal,
 
-            article_match = filtered_df[
-                filtered_df["DOI"].apply(normalize_doi)
-                ==
-                normalize_doi(selected_doi)
-            ].copy()
+                return_page="Authors",
 
-            # ====================================================
-            # ARTICLE NOT FOUND
-            # ====================================================
+                return_label=selected_author,
 
-            if article_match.empty:
+                return_params={
+                    "author": selected_author
+                },
 
-                st.warning(
-                    "This article could not be found within "
-                    "the currently selected journal and year filters."
-                )
-
-                if st.button(
-                    f"← Back to {selected_author}"
-                ):
-
-                    st.query_params.clear()
-                    st.query_params["page"] = "Authors"
-                    st.query_params["author"] = selected_author
-
-                    st.rerun()
-
-                st.stop()
-
-
-            # One DOI = one article in our cleaned dataset
-            article = article_match.iloc[0]
-
-
-            # ====================================================
-            # BACK TO AUTHOR
-            # ====================================================
-
-            if st.button(
-                f"← Back to {selected_author}"
-            ):
-
-                st.query_params.clear()
-
-                st.query_params["page"] = "Authors"
-                st.query_params["author"] = selected_author
-
-                st.rerun()
-
-
-            # ====================================================
-            # BASIC ARTICLE INFORMATION
-            # ====================================================
-
-            article_title = (
-                str(article["Title"])
-                if pd.notna(article["Title"])
-                else "Untitled publication"
+                selected_author=selected_author
             )
-
-            article_year = (
-                int(article["Year"])
-                if pd.notna(article["Year"])
-                else None
-            )
-
-            article_citations = (
-                int(article["Citation count"])
-                if pd.notna(article["Citation count"])
-                else 0
-            )
-
-            article_date = article["Date"]
-
-            if pd.notna(article_date):
-
-                try:
-                    article_date_display = pd.to_datetime(
-                        article_date
-                    ).strftime("%B %d, %Y")
-
-                except Exception:
-                    article_date_display = str(article_date)
-
-            else:
-                article_date_display = "Not available"
-
-
-            # ====================================================
-            # OPEN ACCESS
-            # ====================================================
-
-            if pd.notna(article["Open access"]):
-                open_access = str(
-                    article["Open access"]
-                )
-            else:
-                open_access = "Unknown"
-
-
-            # ====================================================
-            # ARTICLE HEADER
-            # ====================================================
-
-            st.markdown(
-                '<div class="section-label">'
-                'Article Profile'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.title(
-                article_title
-            )
-
-            st.caption(
-                f"{selected_journal}"
-                +
-                (
-                    f" · {article_year}"
-                    if article_year
-                    else ""
-                )
-            )
-
-            # ====================================================
-            # ARTICLE METRICS
-            # ====================================================
-
-            st.markdown(
-                "<br>",
-                unsafe_allow_html=True
-            )
-
-            metric1, metric2, metric3 = st.columns(3)
-
-            metric1.metric(
-                "Citations",
-                f"{article_citations:,}"
-            )
-
-            metric2.metric(
-                "Open Access",
-                open_access
-            )
-
-            metric3.metric(
-                "Publication Year",
-                article_year
-                if article_year
-                else "Unknown"
-            )
-
-            # ====================================================
-            # AUTHORS & CO-AUTHORS
-            # ====================================================
-
-            st.divider()
-
-            st.markdown(
-                '<div class="section-label">'
-                'Research Team'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Authors & Co-authors"
-            )
-
-            # ====================================================
-            # GET ARTICLE AUTHORS
-            # ====================================================
-
-            article_authors = []
-
-            if pd.notna(article["Author"]):
-
-                article_authors = [
-                    name.strip()
-                    for name in str(article["Author"]).split("|")
-                    if name.strip()
-                ]
-
-                # Remove duplicates while preserving order
-                article_authors = list(
-                    dict.fromkeys(
-                        article_authors
-                    )
-                )
-
-            if article_authors:
-
-                for author_name in article_authors:
-
-                    author_url = (
-                        f"?page=Authors"
-                        f"&author={quote(str(author_name))}"
-                    )
-
-                    # Show where we entered the article from
-                    if author_name == selected_author:
-
-                        label = (
-                            f"👤 {author_name}  ·  Selected author"
-                        )
-
-                    else:
-
-                        label = (
-                            f"👤 {author_name}"
-                        )
-
-                    st.markdown(
-                        f'''
-                        <a href="{author_url}" target="_self"
-                           style="
-                               display:block;
-                               padding:0.6rem 0.75rem;
-                               margin-bottom:0.5rem;
-                               border:1px solid rgba(128,128,128,0.18);
-                               border-radius:0.5rem;
-                               text-decoration:none;
-                           ">
-                            {label}
-                        </a>
-                        ''',
-                        unsafe_allow_html=True
-                    )
-
-            else:
-
-                st.info(
-                    "Author information is not available "
-                    "for this publication."
-                )
-
-            # ====================================================
-            # INSTITUTIONS REPRESENTED
-            # ====================================================
-
-            st.divider()
-
-            st.markdown(
-                '<div class="section-label">'
-                'Affiliations'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Institutions Represented"
-            )
-
-            institutions = []
-
-            if pd.notna(article["Institution"]):
-
-                institutions = [
-                    institution.strip()
-                    for institution
-                    in str(
-                        article["Institution"]
-                    ).split("|")
-                    if institution.strip()
-                ]
-
-                institutions = list(
-                    dict.fromkeys(
-                        institutions
-                    )
-                )
-
-            if institutions:
-
-                institution_text = " · ".join(
-                    institutions
-                )
-
-                st.write(
-                    institution_text
-                )
-
-            else:
-
-                st.caption(
-                    "Institution information is not "
-                    "available for this publication."
-                )
-
-            st.caption(
-                "Institutions are reported at the article level. "
-                "The current dataset does not preserve the exact "
-                "author-to-institution relationship."
-            )
-
-            # ====================================================
-            # COUNTRIES REPRESENTED
-            # ====================================================
-
-            st.markdown(
-                '<div class="section-label" '
-                'style="margin-top:25px;">'
-                'Geographic Representation'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Countries Represented"
-            )
-
-            countries = []
-
-            if pd.notna(article["Country"]):
-
-                country_codes = [
-                    country.strip()
-                    for country
-                    in str(
-                        article["Country"]
-                    ).split("|")
-                    if country.strip()
-                ]
-
-                country_codes = list(
-                    dict.fromkeys(
-                        country_codes
-                    )
-                )
-
-                for country in country_codes:
-                    country_name = country_code_to_name(
-                        country
-                    )
-
-                    if country_name:
-                        countries.append(
-                            country_name
-                        )
-
-
-            if countries:
-                st.write(
-                    " · ".join(countries)
-                )
-
-            else:
-                st.caption(
-                    "Country information is not "
-                    "available for this publication."
-                )
-
-
-            # ====================================================
-            # RESEARCH TOPICS
-            # ====================================================
-
-            st.divider()
-
-            st.markdown(
-                '<div class="section-label">'
-                'Research Content'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Research Topics"
-            )
-
-            topics = []
-
-            if pd.notna(article["Topic"]):
-
-                topics = [
-                    topic.strip()
-                    for topic
-                    in str(
-                        article["Topic"]
-                    ).split("|")
-                    if topic.strip()
-                ]
-
-                topics = list(
-                    dict.fromkeys(
-                        topics
-                    )
-                )
-
-            if topics:
-
-                st.write(
-                    " · ".join(topics)
-                )
-
-            else:
-                st.caption(
-                    "Topic information is not "
-                    "available for this publication."
-                )
-
-            # ====================================================
-            # KEYWORDS
-            # ====================================================
-
-            st.markdown(
-                '<div class="section-label" '
-                'style="margin-top:25px;">'
-                'Keywords'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            keywords = []
-
-            if pd.notna(article["Keyword"]):
-
-                keywords = [
-                    keyword.strip()
-                    for keyword
-                    in str(
-                        article["Keyword"]
-                    ).split("|")
-                    if keyword.strip()
-                ]
-
-                keywords = list(
-                    dict.fromkeys(
-                        keywords
-                    )
-                )
-
-
-            if keywords:
-
-                st.write(
-                    " · ".join(keywords)
-                )
-
-            else:
-
-                st.caption(
-                    "Keyword information is not "
-                    "available for this publication."
-                )
-
-            # ====================================================
-            # RESEARCH CLASSIFICATION
-            # ====================================================
-
-            st.divider()
-
-            st.markdown(
-                '<div class="section-label">'
-                'OpenAlex Classification'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Research Classification"
-            )
-
-            classification_columns = st.columns(3)
-
-            # ----------------------------------------------------
-            # DOMAIN
-            # ----------------------------------------------------
-
-            with classification_columns[0]:
-
-                st.markdown(
-                    "**Domain**"
-                )
-
-                if pd.notna(article["Domain"]):
-
-                    domains = [
-                        value.strip()
-                        for value
-                        in str(
-                            article["Domain"]
-                        ).split("|")
-                        if value.strip()
-                    ]
-
-                    domains = list(
-                        dict.fromkeys(
-                            domains
-                        )
-                    )
-
-                    st.write(
-                        " · ".join(domains)
-                    )
-
-                else:
-
-                    st.caption(
-                        "Not available"
-                    )
-
-
-            # ----------------------------------------------------
-            # FIELD
-            # ----------------------------------------------------
-
-            with classification_columns[1]:
-
-                st.markdown(
-                    "**Field**"
-                )
-
-                if pd.notna(article["Field"]):
-
-                    fields = [
-                        value.strip()
-                        for value
-                        in str(
-                            article["Field"]
-                        ).split("|")
-                        if value.strip()
-                    ]
-
-                    fields = list(
-                        dict.fromkeys(
-                            fields
-                        )
-                    )
-                    st.write(
-                        " · ".join(fields)
-                    )
-
-                else:
-                    st.caption(
-                        "Not available"
-                    )
-
-            # ----------------------------------------------------
-            # SUBFIELD
-            # ----------------------------------------------------
-
-            with classification_columns[2]:
-
-                st.markdown(
-                    "**Subfield**"
-                )
-
-                if pd.notna(article["Subfield"]):
-
-                    subfields = [
-                        value.strip()
-                        for value
-                        in str(
-                            article["Subfield"]
-                        ).split("|")
-                        if value.strip()
-                    ]
-
-                    subfields = list(
-                        dict.fromkeys(
-                            subfields
-                        )
-                    )
-
-                    st.write(
-                        " · ".join(subfields)
-                    )
-
-                else:
-
-                    st.caption(
-                        "Not available"
-                    )
-
-            # ====================================================
-            # ABSTRACT
-            # ====================================================
-
-            st.divider()
-
-            st.markdown(
-                '<div class="section-label">'
-                'Abstract'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Abstract"
-            )
-
-            if (
-                pd.notna(article["Abstract"])
-                and str(article["Abstract"]).strip()
-            ):
-
-                st.write(
-                    str(
-                        article["Abstract"]
-                    ).strip()
-                )
-
-            else:
-                st.info(
-                    "An abstract is not available "
-                    "for this publication in the current dataset."
-                )
-
-            # ====================================================
-            # ARTICLE INFORMATION
-            # ====================================================
-
-            st.divider()
-
-            st.markdown(
-                '<div class="section-label">'
-                'Publication Details'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.subheader(
-                "Article Information"
-            )
-
-            info1, info2 = st.columns(2)
-
-            with info1:
-                st.markdown(
-                    "**Journal**"
-                )
-
-                st.write(
-                    selected_journal
-                )
-
-                st.markdown(
-                    "**Publication Date**"
-                )
-
-                st.write(
-                    article_date_display
-                )
-
-
-            with info2:
-                st.markdown(
-                    "**DOI**"
-                )
-
-                st.write(
-                    selected_doi
-                )
-
-                st.markdown(
-                    "**Citation Count**"
-                )
-
-                st.write(
-                    f"{article_citations:,}"
-                )
-
-            # ====================================================
-            # DOI BUTTON
-            # ====================================================
-
-            doi_value = str(
-                selected_doi
-            ).strip()
-
-            if doi_value:
-
-                if doi_value.startswith(
-                    "https://doi.org/"
-                ):
-
-                    doi_url = doi_value
-
-                elif doi_value.startswith(
-                    "http://doi.org/"
-                ):
-
-                    doi_url = doi_value.replace(
-                        "http://doi.org/",
-                        "https://doi.org/"
-                    )
-
-                else:
-
-                    doi_url = (
-                        f"https://doi.org/"
-                        f"{doi_value}"
-                    )
-
-
-                st.link_button(
-                    "Open DOI ↗",
-                    doi_url
-                )
-
-            # ====================================================
-            # DATA NOTE
-            # ====================================================
-
-            st.caption(
-                "Article metadata and citation information are "
-                "based on the current OpenAlex-derived dataset. "
-                "Citation counts may change over time."
-            )
-
-            # Stop here so the Author Profile does not render below
-            st.stop()
 
         # ====================================================
         # AUTHOR PROFILE
@@ -2300,55 +2547,49 @@ elif page == "Authors":
             ][:2]
         )
 
+
         # ====================================================
-        # PROFILE HEADER
+        # AUTHOR PROFILE HERO
         # ====================================================
 
-        profile_left, profile_right = st.columns(
-            [0.7, 5],
-            vertical_alignment="center"
-        )
+        st.markdown(
+            f"""
+            <div class="profile-hero">
 
-        with profile_left:
-
-            st.markdown(
-                f"""
                 <div style="
-                    width:78px;
-                    height:78px;
-                    border-radius:50%;
-                    background:#17243A;
-                    color:white;
                     display:flex;
                     align-items:center;
-                    justify-content:center;
-                    font-size:1.40rem;
-                    font-weight:700;
-                    letter-spacing:0.04em;
+                    gap:24px;
                 ">
-                    {initials}
+
+                    <div class="profile-avatar">
+                        {initials}
+                    </div>
+
+                    <div style="flex:1;">
+
+                        <div class="profile-hero-label">
+                            Author Profile
+                        </div>
+
+                        <div class="profile-hero-title">
+                            {selected_author}
+                        </div>
+
+                        <div class="profile-hero-subtitle">
+                            {selected_journal}
+                            &nbsp;·&nbsp;
+                            {first_year}–{latest_year}
+                        </div>
+
+                    </div>
+
                 </div>
-                """,
-                unsafe_allow_html=True
-            )
 
-        with profile_right:
-
-            st.markdown(
-                '<div class="section-label">'
-                'Author Profile'
-                '</div>',
-                unsafe_allow_html=True
-            )
-
-            st.header(
-                selected_author
-            )
-
-            st.caption(
-                f"{selected_journal} · "
-                f"{first_year}–{latest_year}"
-            )
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
         # ====================================================
@@ -2654,12 +2895,6 @@ elif page == "Authors":
         )
 
 
-        publication_table["DOI Link"] = (
-            publication_table["DOI"]
-            .apply(make_doi_link)
-        )
-
-
         # ====================================================
         # FINAL DISPLAY TABLE
         # ====================================================
@@ -2717,6 +2952,17 @@ elif page == "Authors":
                         width="small"
                     )
             }
+        )
+
+
+        # ====================================================
+        # METHODOLOGY NOTE
+        # ====================================================
+
+        st.caption(
+            "Author profiles represent participation in Decision "
+            "Support Systems publications. The current dataset does not "
+            "preserve exact author-to-institution relationships."
         )
 
 
@@ -2786,6 +3032,10 @@ elif page == "Institutions":
 
     if selected_institution is None:
 
+        # ----------------------------------------------------
+        # HEADER
+        # ----------------------------------------------------
+
         st.markdown(
             '<div class="section-label">Research Community</div>',
             unsafe_allow_html=True
@@ -2823,7 +3073,9 @@ elif page == "Institutions":
         with search_col:
             institution_search = st.text_input(
                 "Search institution",
-                placeholder="Search by institution name..."
+                placeholder=(
+                    "Search by institution name..."
+                )
             )
 
         with min_col:
@@ -2968,9 +3220,37 @@ elif page == "Institutions":
 
     else:
 
+        # ====================================================
+        # ARTICLE PROFILE
+        # ====================================================
+
+        article_from_url = st.query_params.get("article")
+
+        if article_from_url:
+
+            selected_doi = unquote(
+                str(article_from_url)
+            )
+
+            render_article_profile(
+                selected_doi=selected_doi,
+                filtered_df=filtered_df,
+                selected_journal=selected_journal,
+
+                return_page="Institutions",
+
+                return_label=selected_institution,
+
+                return_params={
+                    "institution": selected_institution
+                }
+            )
+
         if st.button("← Back to Institutions"):
             st.query_params.clear()
-            st.query_params["page"] = "Institutions"
+            st.query_params[
+                "page"
+            ] = "Institutions"
             st.rerun()
 
         institution_articles = institution_df[
@@ -3066,24 +3346,52 @@ elif page == "Institutions":
                 )
                 .reset_index()
                 .sort_values(
-                    ["Publications", "Citations"],
-                    ascending=[False, False]
+                    [
+                        "Publications",
+                        "Citations"
+                    ],
+                    ascending=[
+                        False,
+                        False
+                    ]
                 )
                 .head(10)
             )
-            topic_fig = px.bar(
-                topic_summary.sort_values("Publications"),
-                x="Publications",
-                y="Topic",
-                orientation="h"
+            topic_plot = (
+                topic_summary
+                .sort_values(
+                    "Publications",
+                    ascending=True
+                )
             )
-            topic_fig.update_layout(
+
+            fig_topic_institutions = (
+                px.bar(
+                    topic_plot,
+                    x="Publications",
+                    y="Topic",
+                    orientation="h"
+                )
+            )
+
+            fig_topic_institutions.update_layout(
+                height=420,
                 xaxis_title="Publications",
-                yaxis_title=None,
+                yaxis_title="",
                 showlegend=False,
-                margin=dict(l=20, r=20, t=20, b=20)
+                margin=dict(
+                    l=10,
+                    r=20,
+                    t=10,
+                    b=30
+                )
             )
-            st.plotly_chart(topic_fig, use_container_width=True)
+
+            st.plotly_chart(
+                fig_topic_institutions,
+                use_container_width=True
+            )
+
         else:
             st.caption(
                 "Topic information is not available for this institution."
@@ -3132,7 +3440,8 @@ elif page == "Institutions":
         )
         publication_table["Publication"] = publication_table.apply(
             lambda row: (
-                f"?page=Authors"
+                f"?page=Institutions"
+                f"&institution={quote(str(selected_institution))}"
                 f"&article={quote(str(row['DOI']))}"
                 f"&title={quote(str(row['Title']))}"
             ),
@@ -3154,32 +3463,65 @@ elif page == "Institutions":
         publication_table["DOI Link"] = publication_table["DOI"].apply(
             institution_doi_link
         )
-        publication_display = publication_table[
-            ["Year", "Publication", "Citations", "DOI Link"]
-        ]
+        publication_display = (
+            publication_table[
+                [
+                    "Year",
+                    "Publication",
+                    "Citations",
+                    "DOI Link"
+                ]
+            ]
+            .copy()
+        )
+
+
+        # ====================================================
+        # DISPLAY PUBLICATIONS
+        # ====================================================
 
         st.dataframe(
             publication_display,
             use_container_width=True,
             hide_index=True,
             height=550,
+
             column_config={
-                "Year": st.column_config.NumberColumn(
-                    "Year", format="%d", width="small"
-                ),
-                "Publication": st.column_config.LinkColumn(
-                    "Publication",
-                    display_text=r"title=([^&]+)",
-                    width="large"
-                ),
-                "Citations": st.column_config.NumberColumn(
-                    "Citations", format="%d", width="small"
-                ),
-                "DOI Link": st.column_config.LinkColumn(
-                    "DOI", display_text="Open DOI", width="small"
-                )
+
+                "Year":
+                    st.column_config.NumberColumn(
+                        "Year",
+                        width="small",
+                        format="%d"
+                    ),
+
+                "Publication":
+                    st.column_config.LinkColumn(
+                        "Publication",
+                        display_text=r"title=([^&]+)",
+                        width="large"
+                    ),
+
+                "Citations":
+                    st.column_config.NumberColumn(
+                        "Citations",
+                        format="%d",
+                        width="small"
+                    ),
+
+                "DOI Link":
+                    st.column_config.LinkColumn(
+                        "DOI",
+                        display_text="Open DOI",
+                        width="small"
+                    )
             }
         )
+
+
+        # ====================================================
+        # METHODOLOGY NOTE
+        # ====================================================
 
         st.caption(
             "Institution profiles represent participation in Decision "
@@ -3194,20 +3536,16 @@ elif page == "Institutions":
 
 elif page == "Countries":
 
-    # --------------------------------------------------------
-    # PAGE HEADER
-    # --------------------------------------------------------
+    # ========================================================
+    # READ URL PARAMETERS
+    # ========================================================
 
-    st.markdown(
-        '<div class="section-label">Geographic Analysis</div>',
-        unsafe_allow_html=True
-    )
+    country_from_url = st.query_params.get("country")
 
-    st.header("Countries")
-
-    st.caption(
-        f"{selected_journal} · "
-        f"{year_range[0]}–{year_range[1]}"
+    selected_country = (
+        unquote(str(country_from_url))
+        if country_from_url
+        else None
     )
 
 
@@ -3222,34 +3560,55 @@ elif page == "Countries":
         if pd.isna(row["Country"]):
             continue
 
-        countries = [
-            country.strip()
-            for country in str(row["Country"]).split("|")
-            if country.strip()
-        ]
-
-        # Remove duplicate countries within one article
-        countries = list(
-            dict.fromkeys(countries)
+        countries = split_cell(
+            row["Country"]
         )
 
         for country_code in countries:
 
-            country_rows.append({
-                "Country Code": country_code.upper(),
+            country_name = country_code_to_name(
+                country_code
+            )
 
-                "Country":
-                    country_code_to_name(
-                        country_code
-                    ),
+            country_rows.append(
+                {
+                    "Country Code":
+                        str(country_code).upper(),
 
-                "DOI": row["DOI"],
+                    "Country":
+                        country_name,
 
-                "Year": row["Year"],
+                    "DOI":
+                        row["DOI"],
 
-                "Citations":
-                    row["Citation count"]
-            })
+                    "Title":
+                        row["Title"],
+
+                    "Year":
+                        row["Year"],
+
+                    "Date":
+                        row["Date"],
+
+                    "Citations":
+                        row["Citation count"],
+
+                    "Author":
+                        row["Author"],
+
+                    "Institution":
+                        row["Institution"],
+
+                    "Topic":
+                        row["Topic"],
+
+                    "Keyword":
+                        row["Keyword"],
+
+                    "Open access":
+                        row["Open access"]
+                }
+            )
 
 
     country_df = pd.DataFrame(
@@ -3257,27 +3616,81 @@ elif page == "Countries":
     )
 
 
-    if not country_df.empty:
+    # ========================================================
+    # NO COUNTRY DATA
+    # ========================================================
 
-        # ====================================================
-        # COUNTRY SUMMARY
-        # ====================================================
+    if country_df.empty:
 
-        country_summary = (
-            country_df
-            .groupby(
-                ["Country Code", "Country"]
+        st.warning(
+            "No country information is available "
+            "for the selected period."
+        )
+
+        st.stop()
+
+
+    # ========================================================
+    # COUNTRY SUMMARY
+    # ========================================================
+
+    country_summary = (
+        country_df
+        .groupby(
+            [
+                "Country Code",
+                "Country"
+            ]
+        )
+        .agg(
+            Publications=(
+                "DOI",
+                "nunique"
+            ),
+
+            Citations=(
+                "Citations",
+                "sum"
+            ),
+
+            First_Publication=(
+                "Year",
+                "min"
+            ),
+
+            Latest_Publication=(
+                "Year",
+                "max"
             )
-            .agg(
-                Publications=("DOI", "nunique"),
+        )
+        .reset_index()
+    )
 
-                Citations=("Citations", "sum"),
 
-                First_Publication=("Year", "min"),
+    # ========================================================
+    # COUNTRY DIRECTORY
+    # ========================================================
 
-                Latest_Publication=("Year", "max")
-            )
-            .reset_index()
+    if selected_country is None:
+
+        # ----------------------------------------------------
+        # HEADER
+        # ----------------------------------------------------
+
+        st.markdown(
+            '<div class="section-label">'
+            'Geographic Analysis'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.header(
+            "Countries"
+        )
+
+        st.caption(
+            f"{selected_journal} · "
+            f"{year_range[0]}–{year_range[1]}"
         )
 
 
@@ -3291,22 +3704,19 @@ elif page == "Countries":
             ].nunique()
         )
 
-
         countries_10_plus = (
             country_summary[
                 "Publications"
             ] >= 10
         ).sum()
 
-
-        most_publications = (
+        most_publications = int(
             country_summary[
                 "Publications"
             ].max()
         )
 
-
-        highest_citations = (
+        highest_citations = int(
             country_summary[
                 "Citations"
             ].max()
@@ -3321,18 +3731,15 @@ elif page == "Countries":
             f"{total_countries:,}"
         )
 
-
         k2.metric(
             "Countries with 10+ Papers",
             f"{countries_10_plus:,}"
         )
 
-
         k3.metric(
             "Most Publications",
             f"{most_publications:,}"
         )
-
 
         k4.metric(
             "Highest Citation Total",
@@ -3341,7 +3748,7 @@ elif page == "Countries":
 
 
         # ====================================================
-        # SEARCH / SORT
+        # SEARCH / FILTER / SORT
         # ====================================================
 
         st.markdown(
@@ -3366,12 +3773,10 @@ elif page == "Countries":
 
         with search_col:
 
-            country_search = (
-                st.text_input(
-                    "Search country",
-                    placeholder=(
-                        "Search by country name..."
-                    )
+            country_search = st.text_input(
+                "Search country",
+                placeholder=(
+                    "Search by country name..."
                 )
             )
 
@@ -3391,22 +3796,20 @@ elif page == "Countries":
 
         with sort_col:
 
-            country_sort = (
-                st.selectbox(
-                    "Sort by",
-                    [
-                        "Publications",
-                        "Citations",
-                        "Latest Publication",
-                        "Country"
-                    ],
-                    key="country_sort"
-                )
+            country_sort = st.selectbox(
+                "Sort by",
+                [
+                    "Publications",
+                    "Citations",
+                    "Latest Publication",
+                    "Country"
+                ],
+                key="country_sort"
             )
 
 
         # ====================================================
-        # FILTER
+        # FILTER COUNTRIES
         # ====================================================
 
         display_countries = (
@@ -3429,50 +3832,143 @@ elif page == "Countries":
                     .str.contains(
                         country_search,
                         case=False,
-                        na=False
+                        na=False,
+                        regex=False
                     )
                 ]
             )
 
 
-        sort_mapping = {
+        # ====================================================
+        # SORTING
+        # ====================================================
 
-            "Publications":
-                "Publications",
+        if country_sort == "Publications":
 
-            "Citations":
-                "Citations",
+            display_countries = (
+                display_countries
+                .sort_values(
+                    [
+                        "Publications",
+                        "Citations",
+                        "Latest_Publication",
+                        "Country"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+            )
 
-            "Latest Publication":
-                "Latest_Publication",
 
-            "Country":
-                "Country"
-        }
+        elif country_sort == "Citations":
+
+            display_countries = (
+                display_countries
+                .sort_values(
+                    [
+                        "Citations",
+                        "Publications",
+                        "Latest_Publication",
+                        "Country"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+            )
+
+
+        elif country_sort == "Latest Publication":
+
+            display_countries = (
+                display_countries
+                .sort_values(
+                    [
+                        "Latest_Publication",
+                        "Publications",
+                        "Citations",
+                        "Country"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+            )
+
+
+        else:
+
+            display_countries = (
+                display_countries
+                .sort_values(
+                    "Country",
+                    ascending=True
+                )
+            )
 
 
         display_countries = (
             display_countries
-            .sort_values(
-                sort_mapping[
-                    country_sort
-                ],
-                ascending=(
-                    country_sort
-                    == "Country"
-                )
+            .reset_index(
+                drop=True
             )
         )
 
 
         # ====================================================
-        # REGISTER
+        # RANK
+        # ====================================================
+
+        display_countries.insert(
+            0,
+            "Rank",
+            range(
+                1,
+                len(display_countries) + 1
+            )
+        )
+
+
+        # ====================================================
+        # CLICKABLE COUNTRY LINKS
+        # ====================================================
+
+        display_countries[
+            "Country Profile"
+        ] = (
+            display_countries[
+                "Country"
+            ]
+            .apply(
+                lambda name:
+                f"?page=Countries"
+                f"&country={quote(str(name))}"
+                f"&name={quote(str(name))}"
+            )
+        )
+
+
+        # ====================================================
+        # COUNTRY REGISTER
         # ====================================================
 
         st.divider()
 
+
         title_col, count_col = (
-            st.columns([3, 1])
+            st.columns(
+                [3, 1]
+            )
         )
 
 
@@ -3501,8 +3997,14 @@ elif page == "Countries":
             )
 
 
+        st.caption(
+            "Click a country name to view "
+            "its research profile."
+        )
+
+
         # ====================================================
-        # TABLE
+        # DISPLAY TABLE
         # ====================================================
 
         country_table = (
@@ -3519,17 +4021,24 @@ elif page == "Countries":
         )
 
 
-        st.dataframe(
+        country_display = (
             country_table[
                 [
-                    "Country",
+                    "Rank",
+                    "Country Profile",
                     "Country Code",
                     "Publications",
                     "Citations",
                     "First Publication",
                     "Latest Publication"
                 ]
-            ],
+            ]
+            .copy()
+        )
+
+
+        st.dataframe(
+            country_display,
 
             use_container_width=True,
 
@@ -3539,9 +4048,17 @@ elif page == "Countries":
 
             column_config={
 
-                "Country":
-                    st.column_config.TextColumn(
+                "Rank":
+                    st.column_config.NumberColumn(
+                        "#",
+                        width="small",
+                        format="%d"
+                    ),
+
+                "Country Profile":
+                    st.column_config.LinkColumn(
                         "Country",
+                        display_text=r"name=([^&]+)",
                         width="large"
                     ),
 
@@ -3586,11 +4103,677 @@ elif page == "Countries":
         )
 
 
+    # ========================================================
+    # COUNTRY PROFILE
+    # ========================================================
+
     else:
 
-        st.warning(
-            "No country information is available "
-            "for the selected period."
+        # ====================================================
+        # ARTICLE PROFILE
+        # ====================================================
+
+        article_from_url = st.query_params.get("article")
+
+        if article_from_url:
+
+            selected_doi = unquote(
+                str(article_from_url)
+            )
+
+            render_article_profile(
+                selected_doi=selected_doi,
+                filtered_df=filtered_df,
+                selected_journal=selected_journal,
+
+                return_page="Countries",
+
+                return_label=selected_country,
+
+                return_params={
+                    "country": selected_country
+                }
+            )
+
+        # ====================================================
+        # BACK TO COUNTRIES
+        # ====================================================
+
+        if st.button(
+            "← Back to Countries"
+        ):
+
+            st.query_params.clear()
+
+            st.query_params[
+                "page"
+            ] = "Countries"
+
+            st.rerun()
+
+
+        # ====================================================
+        # SELECT COUNTRY ARTICLES
+        # ====================================================
+
+        country_articles = (
+            country_df[
+                country_df[
+                    "Country"
+                ] == selected_country
+            ]
+            .drop_duplicates(
+                subset="DOI"
+            )
+            .copy()
+        )
+
+
+        # ====================================================
+        # COUNTRY NOT FOUND
+        # ====================================================
+
+        if country_articles.empty:
+
+            st.warning(
+                "The selected country could not be found "
+                "within the current filters."
+            )
+
+            st.stop()
+
+
+        # ====================================================
+        # BASIC METRICS
+        # ====================================================
+
+        total_papers = (
+            country_articles[
+                "DOI"
+            ].nunique()
+        )
+
+        total_citations = int(
+            country_articles[
+                "Citations"
+            ]
+            .fillna(0)
+            .sum()
+        )
+
+        average_citations = (
+            total_citations /
+            total_papers
+            if total_papers > 0
+            else 0
+        )
+
+        first_year = int(
+            country_articles[
+                "Year"
+            ].min()
+        )
+
+        latest_year = int(
+            country_articles[
+                "Year"
+            ].max()
+        )
+
+
+        # ====================================================
+        # COUNTRY PROFILE HEADER
+        # ====================================================
+
+        st.markdown(
+            '<div class="section-label">'
+            'Country Profile'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.title(
+            selected_country
+        )
+
+        st.caption(
+            f"{selected_journal} · "
+            f"{first_year}–{latest_year}"
+        )
+
+
+        # ====================================================
+        # PROFILE METRICS
+        # ====================================================
+
+        st.markdown(
+            "<br>",
+            unsafe_allow_html=True
+        )
+
+
+        m1, m2, m3 = st.columns(3)
+
+
+        m1.metric(
+            "Publications",
+            f"{total_papers:,}"
+        )
+
+        m2.metric(
+            "Total Citations",
+            f"{total_citations:,}"
+        )
+
+        m3.metric(
+            "Avg. Citations / Paper",
+            f"{average_citations:,.1f}"
+        )
+
+
+        m4, m5 = st.columns(2)
+
+
+        m4.metric(
+            "First Publication",
+            f"{first_year}"
+        )
+
+        m5.metric(
+            "Latest Publication",
+            f"{latest_year}"
+        )
+
+
+        # ====================================================
+        # OUTPUT OVER TIME
+        # ====================================================
+
+        st.divider()
+
+
+        st.markdown(
+            '<div class="section-label">'
+            'Publication Activity'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        st.subheader(
+            "Output Over Time"
+        )
+
+
+        country_yearly = (
+            country_articles
+            .groupby(
+                "Year"
+            )
+            .agg(
+                Publications=(
+                    "DOI",
+                    "nunique"
+                )
+            )
+            .reset_index()
+            .sort_values(
+                "Year"
+            )
+        )
+
+
+        fig_country_output = px.bar(
+            country_yearly,
+            x="Year",
+            y="Publications"
+        )
+
+
+        fig_country_output.update_layout(
+            height=350,
+            xaxis_title="",
+            yaxis_title="Publications",
+            showlegend=False,
+            margin=dict(
+                l=20,
+                r=20,
+                t=10,
+                b=30
+            )
+        )
+
+
+        fig_country_output.update_xaxes(
+            dtick=1
+        )
+
+
+        st.plotly_chart(
+            fig_country_output,
+            use_container_width=True
+        )
+
+
+        # ====================================================
+        # LEADING RESEARCH TOPICS
+        # ====================================================
+
+        st.divider()
+
+        st.markdown(
+            '<div class="section-label">'
+            'Research Focus'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.subheader(
+            "Leading Research Topics"
+        )
+
+
+        country_topic_rows = []
+
+
+        for _, row in (
+            country_articles.iterrows()
+        ):
+
+            for topic in split_cell(
+                row["Topic"]
+            ):
+
+                country_topic_rows.append(
+                    {
+                        "Topic":
+                            topic,
+
+                        "DOI":
+                            row["DOI"],
+
+                        "Citations":
+                            row["Citations"]
+                    }
+                )
+
+
+        country_topics = pd.DataFrame(
+            country_topic_rows
+        )
+
+
+        if not country_topics.empty:
+
+            topic_summary = (
+                country_topics
+                .groupby(
+                    "Topic"
+                )
+                .agg(
+                    Publications=(
+                        "DOI",
+                        "nunique"
+                    ),
+
+                    Citations=(
+                        "Citations",
+                        "sum"
+                    )
+                )
+                .reset_index()
+                .sort_values(
+                    [
+                        "Publications",
+                        "Citations"
+                    ],
+                    ascending=[
+                        False,
+                        False
+                    ]
+                )
+                .head(10)
+            )
+
+
+            topic_plot = (
+                topic_summary
+                .sort_values(
+                    "Publications",
+                    ascending=True
+                )
+            )
+
+
+            fig_country_topics = px.bar(
+                topic_plot,
+                x="Publications",
+                y="Topic",
+                orientation="h"
+            )
+
+
+            fig_country_topics.update_layout(
+                height=420,
+                xaxis_title="Publications",
+                yaxis_title="",
+                showlegend=False,
+                margin=dict(
+                    l=10,
+                    r=20,
+                    t=10,
+                    b=30
+                )
+            )
+
+
+            st.plotly_chart(
+                fig_country_topics,
+                use_container_width=True
+            )
+
+
+        else:
+
+            st.info(
+                "Topic information is not available "
+                "for this country's publications."
+            )
+
+
+        # ====================================================
+        # INSTITUTIONAL PARTICIPATION
+        # ====================================================
+
+        st.divider()
+
+        st.markdown(
+            '<div class="section-label">'
+            'Institutional Participation'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.subheader(
+            "Leading Institutions"
+        )
+
+
+        country_institution_rows = []
+
+
+        for _, row in (
+            country_articles.iterrows()
+        ):
+
+            for institution in split_cell(
+                row["Institution"]
+            ):
+
+                country_institution_rows.append(
+                    {
+                        "Institution":
+                            institution,
+
+                        "DOI":
+                            row["DOI"],
+
+                        "Citations":
+                            row["Citations"]
+                    }
+                )
+
+
+        country_institutions = (
+            pd.DataFrame(
+                country_institution_rows
+            )
+        )
+
+
+        if not country_institutions.empty:
+
+            institution_summary = (
+                country_institutions
+                .groupby(
+                    "Institution"
+                )
+                .agg(
+                    Publications=(
+                        "DOI",
+                        "nunique"
+                    ),
+
+                    Citations=(
+                        "Citations",
+                        "sum"
+                    )
+                )
+                .reset_index()
+                .sort_values(
+                    [
+                        "Publications",
+                        "Citations",
+                        "Institution"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        True
+                    ]
+                )
+                .head(10)
+            )
+
+
+            institution_plot = (
+                institution_summary
+                .sort_values(
+                    "Publications",
+                    ascending=True
+                )
+            )
+
+
+            fig_country_institutions = (
+                px.bar(
+                    institution_plot,
+                    x="Publications",
+                    y="Institution",
+                    orientation="h"
+                )
+            )
+
+
+            fig_country_institutions.update_layout(
+                height=440,
+                xaxis_title="Publications",
+                yaxis_title="",
+                showlegend=False,
+                margin=dict(
+                    l=10,
+                    r=10,
+                    t=10,
+                    b=30
+                )
+            )
+
+
+            st.plotly_chart(
+                fig_country_institutions,
+                use_container_width=True
+            )
+
+
+        else:
+
+            st.info(
+                "Institution information is not "
+                "available for this country's publications."
+            )
+
+
+        st.caption(
+            "Institutions shown here are institutions "
+            "participating in publications associated with "
+            f"{selected_country}. The current dataset does not "
+            "preserve the exact institution-to-country "
+            "relationship, so this should not be interpreted "
+            "as a list of institutions physically located "
+            "in the selected country."
+        )
+
+
+        # ====================================================
+        # PUBLICATIONS
+        # ====================================================
+
+        st.divider()
+
+        st.markdown(
+            '<div class="section-label">'
+            'Research Output'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.subheader(
+            "Publications"
+        )
+
+        st.caption(
+            "Publications associated with "
+            f"{selected_country}."
+        )
+
+
+        # ====================================================
+        # PREPARE PUBLICATION TABLE
+        # ====================================================
+
+        publication_table = (
+            country_articles[
+                [
+                    "Year",
+                    "Title",
+                    "Citations",
+                    "DOI"
+                ]
+            ]
+            .sort_values(
+                [
+                    "Year",
+                    "Citations"
+                ],
+                ascending=[
+                    False,
+                    False
+                ]
+            )
+            .copy()
+        )
+
+
+        # ====================================================
+        # INTERNAL ARTICLE LINKS
+        # ====================================================
+
+        publication_table[
+            "Publication"
+        ] = (
+            publication_table
+            .apply(
+                lambda row:
+                    f"?page=Countries"
+                    f"&country={quote(str(selected_country))}"
+                    f"&article={quote(str(row['DOI']))}"
+                    f"&title={quote(str(row['Title']))}",
+                axis=1
+            )
+        )
+
+
+        # ====================================================
+        # DOI LINKS
+        # ====================================================
+
+        publication_table[
+            "DOI Link"
+        ] = (
+            publication_table[
+                "DOI"
+            ]
+            .apply(
+                make_doi_link
+            )
+        )
+
+
+        publication_display = (
+            publication_table[
+                [
+                    "Year",
+                    "Publication",
+                    "Citations",
+                    "DOI Link"
+                ]
+            ]
+            .copy()
+        )
+
+
+        # ====================================================
+        # DISPLAY PUBLICATIONS
+        # ====================================================
+
+        st.dataframe(
+            publication_display,
+            use_container_width=True,
+            hide_index=True,
+            height=550,
+
+            column_config={
+
+                "Year":
+                    st.column_config.NumberColumn(
+                        "Year",
+                        width="small",
+                        format="%d"
+                    ),
+
+                "Publication":
+                    st.column_config.LinkColumn(
+                        "Publication",
+                        display_text=r"title=([^&]+)",
+                        width="large"
+                    ),
+
+                "Citations":
+                    st.column_config.NumberColumn(
+                        "Citations",
+                        format="%d",
+                        width="small"
+                    ),
+
+                "DOI Link":
+                    st.column_config.LinkColumn(
+                        "DOI",
+                        display_text="Open DOI",
+                        width="small"
+                    )
+            }
+        )
+
+
+        # ====================================================
+        # METHODOLOGY NOTE
+        # ====================================================
+
+        st.caption(
+            "Country profiles represent participation in "
+            f"{selected_journal} publications. Publications "
+            "involving multiple countries are included in "
+            "the profile of each participating country."
         )
 
 
@@ -3600,20 +4783,16 @@ elif page == "Countries":
 
 elif page == "Research Topics":
 
-    # --------------------------------------------------------
-    # PAGE HEADER
-    # --------------------------------------------------------
+    # ========================================================
+    # READ URL PARAMETERS
+    # ========================================================
 
-    st.markdown(
-        '<div class="section-label">Research Landscape</div>',
-        unsafe_allow_html=True
-    )
+    topic_from_url = st.query_params.get("topic")
 
-    st.header("Research Topics")
-
-    st.caption(
-        f"{selected_journal} · "
-        f"{year_range[0]}–{year_range[1]}"
+    selected_topic = (
+        unquote(str(topic_from_url))
+        if topic_from_url
+        else None
     )
 
 
@@ -3628,44 +4807,113 @@ elif page == "Research Topics":
         if pd.isna(row["Topic"]):
             continue
 
-        topics = [
-            topic.strip()
-            for topic in str(row["Topic"]).split("|")
-            if topic.strip()
-        ]
-
-        # Remove duplicate topics within one article
-        topics = list(dict.fromkeys(topics))
+        topics = split_cell(
+            row["Topic"]
+        )
 
         for topic in topics:
 
-            topic_rows.append({
-                "Topic": topic,
-                "DOI": row["DOI"],
-                "Year": row["Year"],
-                "Citations": row["Citation count"]
-            })
-
-
-    topic_df = pd.DataFrame(topic_rows)
-
-
-    if not topic_df.empty:
-
-        # ====================================================
-        # TOPIC SUMMARY
-        # ====================================================
-
-        topic_summary = (
-            topic_df
-            .groupby("Topic")
-            .agg(
-                Publications=("DOI", "nunique"),
-                Citations=("Citations", "sum"),
-                First_Publication=("Year", "min"),
-                Latest_Publication=("Year", "max")
+            topic_rows.append(
+                {
+                    "Topic": topic,
+                    "DOI": row["DOI"],
+                    "Title": row["Title"],
+                    "Year": row["Year"],
+                    "Date": row["Date"],
+                    "Citations": row["Citation count"],
+                    "Author": row["Author"],
+                    "Institution": row["Institution"],
+                    "Country": row["Country"],
+                    "Keyword": row["Keyword"],
+                    "Open access": row["Open access"]
+                }
             )
-            .reset_index()
+
+
+    topic_df = pd.DataFrame(
+        topic_rows
+    )
+
+
+    # ========================================================
+    # NO TOPIC DATA
+    # ========================================================
+
+    if topic_df.empty:
+
+        st.warning(
+            "No topic information is available "
+            "for the selected period."
+        )
+
+        st.stop()
+
+
+    # ========================================================
+    # TOPIC SUMMARY
+    # ========================================================
+
+    topic_summary = (
+        topic_df
+        .groupby("Topic")
+        .agg(
+            Publications=(
+                "DOI",
+                "nunique"
+            ),
+
+            Citations=(
+                "Citations",
+                "sum"
+            ),
+
+            First_Publication=(
+                "Year",
+                "min"
+            ),
+
+            Latest_Publication=(
+                "Year",
+                "max"
+            )
+        )
+        .reset_index()
+    )
+
+
+    topic_summary[
+        "Citations_per_Paper"
+    ] = (
+        topic_summary["Citations"]
+        /
+        topic_summary["Publications"]
+    )
+
+
+    # ========================================================
+    # TOPIC DIRECTORY
+    # ========================================================
+
+    if selected_topic is None:
+
+        # ----------------------------------------------------
+        # PAGE HEADER
+        # ----------------------------------------------------
+
+        st.markdown(
+            '<div class="section-label">'
+            'Research Landscape'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.header(
+            "Research Topics"
+        )
+
+        st.caption(
+            f"{selected_journal} · "
+            f"{year_range[0]}–{year_range[1]}"
         )
 
 
@@ -3673,31 +4921,48 @@ elif page == "Research Topics":
         # KPI CARDS
         # ====================================================
 
-        total_topics = topic_summary["Topic"].nunique()
-
-        active_topics = (
-            topic_summary["Publications"] >= 10
-        ).sum()
-
-        largest_topic = (
-            topic_summary["Publications"].max()
+        total_topics = (
+            topic_summary[
+                "Topic"
+            ].nunique()
         )
 
-        topic_publications = len(
+        active_topics = (
+            topic_summary[
+                "Publications"
+            ] >= 10
+        ).sum()
+
+        largest_topic = int(
+            topic_summary[
+                "Publications"
+            ].max()
+        )
+
+        topic_publications = (
             filtered_df[
-                filtered_df["Topic"].notna()
+                filtered_df[
+                    "Topic"
+                ].notna()
             ]
+            ["DOI"]
+            .nunique()
         )
 
         topic_coverage = (
-            topic_publications /
-            len(filtered_df) * 100
+            topic_publications
+            /
+            filtered_df[
+                "DOI"
+            ].nunique()
+            * 100
             if len(filtered_df) > 0
             else 0
         )
 
 
         k1, k2, k3, k4 = st.columns(4)
+
 
         k1.metric(
             "Research Topics",
@@ -3721,17 +4986,24 @@ elif page == "Research Topics":
 
 
         # ====================================================
-        # TOP TOPICS
+        # LEADING TOPICS
         # ====================================================
 
-        st.markdown("<br>", unsafe_allow_html=True)
-
         st.markdown(
-            '<div class="section-label">Research Concentration</div>',
+            "<br>",
             unsafe_allow_html=True
         )
 
-        st.subheader("Leading Research Topics")
+        st.markdown(
+            '<div class="section-label">'
+            'Research Concentration'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.subheader(
+            "Leading Research Topics"
+        )
 
 
         top_n = st.slider(
@@ -3739,15 +5011,22 @@ elif page == "Research Topics":
             min_value=5,
             max_value=30,
             value=15,
-            step=5
+            step=5,
+            key="topic_top_n"
         )
 
 
         top_topics = (
             topic_summary
             .sort_values(
-                "Publications",
-                ascending=False
+                [
+                    "Publications",
+                    "Citations"
+                ],
+                ascending=[
+                    False,
+                    False
+                ]
             )
             .head(top_n)
             .sort_values(
@@ -3772,13 +5051,17 @@ elif page == "Research Topics":
         fig_topics.update_layout(
             xaxis_title="Number of Publications",
             yaxis_title="",
-            height=max(450, top_n * 32),
+            height=max(
+                450,
+                top_n * 32
+            ),
             margin=dict(
                 l=10,
                 r=20,
                 t=20,
                 b=40
-            )
+            ),
+            showlegend=False
         )
 
 
@@ -3795,32 +5078,49 @@ elif page == "Research Topics":
         st.divider()
 
         st.markdown(
-            '<div class="section-label">Topic Evolution</div>',
+            '<div class="section-label">'
+            'Topic Evolution'
+            '</div>',
             unsafe_allow_html=True
         )
 
-        st.subheader("Topic Trends Over Time")
+        st.subheader(
+            "Topic Trends Over Time"
+        )
 
 
         trend_topics = (
             topic_summary
             .sort_values(
-                "Publications",
-                ascending=False
+                [
+                    "Publications",
+                    "Citations"
+                ],
+                ascending=[
+                    False,
+                    False
+                ]
             )
-            .head(30)["Topic"]
+            .head(30)[
+                "Topic"
+            ]
             .tolist()
         )
 
 
-        default_topics = trend_topics[:3]
+        default_topics = (
+            trend_topics[:3]
+        )
 
 
-        selected_topics = st.multiselect(
-            "Select topics",
-            options=trend_topics,
-            default=default_topics,
-            max_selections=5
+        selected_topics = (
+            st.multiselect(
+                "Select topics",
+                options=trend_topics,
+                default=default_topics,
+                max_selections=5,
+                key="topic_trend_selection"
+            )
         )
 
 
@@ -3828,15 +5128,23 @@ elif page == "Research Topics":
 
             topic_trend = (
                 topic_df[
-                    topic_df["Topic"].isin(
+                    topic_df[
+                        "Topic"
+                    ].isin(
                         selected_topics
                     )
                 ]
                 .groupby(
-                    ["Year", "Topic"]
+                    [
+                        "Year",
+                        "Topic"
+                    ]
                 )
                 .agg(
-                    Publications=("DOI", "nunique")
+                    Publications=(
+                        "DOI",
+                        "nunique"
+                    )
                 )
                 .reset_index()
             )
@@ -3870,6 +5178,7 @@ elif page == "Research Topics":
                 use_container_width=True
             )
 
+
         else:
 
             st.info(
@@ -3884,12 +5193,18 @@ elif page == "Research Topics":
 
         st.divider()
 
-        title_col, count_col = st.columns([3, 1])
+        title_col, count_col = (
+            st.columns(
+                [3, 1]
+            )
+        )
 
 
         with title_col:
 
-            st.subheader("Topic Register")
+            st.subheader(
+                "Topic Register"
+            )
 
 
         with count_col:
@@ -3910,35 +5225,239 @@ elif page == "Research Topics":
             )
 
 
-        topic_search = st.text_input(
-            "Search topics",
-            placeholder="Search by topic name..."
+        st.caption(
+            "Click a research topic to view "
+            "its detailed research profile."
         )
 
 
-        topic_table = topic_summary.copy()
+        # ====================================================
+        # SEARCH / FILTER / SORT
+        # ====================================================
+
+        search_col, min_col, sort_col = (
+            st.columns(
+                [2.4, 1, 1.4]
+            )
+        )
+
+
+        with search_col:
+
+            topic_search = st.text_input(
+                "Search topics",
+                placeholder=(
+                    "Search by topic name..."
+                )
+            )
+
+
+        with min_col:
+
+            min_topic_papers = (
+                st.number_input(
+                    "Minimum papers",
+                    min_value=1,
+                    value=1,
+                    step=1,
+                    key="topic_min_papers"
+                )
+            )
+
+
+        with sort_col:
+
+            topic_sort = st.selectbox(
+                "Sort by",
+                [
+                    "Publications",
+                    "Citations",
+                    "Citations per Paper",
+                    "Latest Publication",
+                    "Topic"
+                ],
+                key="topic_sort"
+            )
+
+
+        # ====================================================
+        # FILTER TOPICS
+        # ====================================================
+
+        topic_table = (
+            topic_summary[
+                topic_summary[
+                    "Publications"
+                ] >= min_topic_papers
+            ]
+            .copy()
+        )
 
 
         if topic_search:
 
-            topic_table = topic_table[
-                topic_table["Topic"]
-                .str.contains(
-                    topic_search,
-                    case=False,
-                    na=False
+            topic_table = (
+                topic_table[
+                    topic_table[
+                        "Topic"
+                    ]
+                    .str.contains(
+                        topic_search,
+                        case=False,
+                        na=False,
+                        regex=False
+                    )
+                ]
+            )
+
+
+        # ====================================================
+        # SORT TOPICS
+        # ====================================================
+
+        if topic_sort == "Publications":
+
+            topic_table = (
+                topic_table
+                .sort_values(
+                    [
+                        "Publications",
+                        "Citations",
+                        "Topic"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        True
+                    ]
                 )
-            ]
+            )
+
+
+        elif topic_sort == "Citations":
+
+            topic_table = (
+                topic_table
+                .sort_values(
+                    [
+                        "Citations",
+                        "Publications",
+                        "Topic"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        True
+                    ]
+                )
+            )
+
+
+        elif topic_sort == "Citations per Paper":
+
+            topic_table = (
+                topic_table
+                .sort_values(
+                    [
+                        "Citations_per_Paper",
+                        "Citations",
+                        "Publications",
+                        "Topic"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+            )
+
+
+        elif topic_sort == "Latest Publication":
+
+            topic_table = (
+                topic_table
+                .sort_values(
+                    [
+                        "Latest_Publication",
+                        "Publications",
+                        "Citations",
+                        "Topic"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        False,
+                        True
+                    ]
+                )
+            )
+
+
+        else:
+
+            topic_table = (
+                topic_table
+                .sort_values(
+                    "Topic",
+                    ascending=True
+                )
+            )
 
 
         topic_table = (
             topic_table
-            .sort_values(
-                "Publications",
-                ascending=False
+            .reset_index(
+                drop=True
             )
+        )
+
+
+        # ====================================================
+        # RANK
+        # ====================================================
+
+        topic_table.insert(
+            0,
+            "Rank",
+            range(
+                1,
+                len(topic_table) + 1
+            )
+        )
+
+
+        # ====================================================
+        # CLICKABLE TOPIC LINKS
+        # ====================================================
+
+        topic_table[
+            "Topic Profile"
+        ] = (
+            topic_table[
+                "Topic"
+            ]
+            .apply(
+                lambda name:
+                    f"?page={quote('Research Topics')}"
+                    f"&topic={quote(str(name))}"
+                    f"&name={quote(str(name))}"
+            )
+        )
+
+
+        # ====================================================
+        # RENAME COLUMNS
+        # ====================================================
+
+        topic_table = (
+            topic_table
             .rename(
                 columns={
+                    "Citations_per_Paper":
+                        "Citations / Paper",
+
                     "First_Publication":
                         "First Publication",
 
@@ -3949,20 +5468,45 @@ elif page == "Research Topics":
         )
 
 
+        # ====================================================
+        # FINAL DISPLAY
+        # ====================================================
+
+        topic_display = (
+            topic_table[
+                [
+                    "Rank",
+                    "Topic Profile",
+                    "Publications",
+                    "Citations",
+                    "Citations / Paper",
+                    "First Publication",
+                    "Latest Publication"
+                ]
+            ]
+            .copy()
+        )
+
+
         st.dataframe(
-            topic_table,
-
+            topic_display,
             use_container_width=True,
-
             hide_index=True,
-
-            height=550,
+            height=600,
 
             column_config={
 
-                "Topic":
-                    st.column_config.TextColumn(
+                "Rank":
+                    st.column_config.NumberColumn(
+                        "#",
+                        width="small",
+                        format="%d"
+                    ),
+
+                "Topic Profile":
+                    st.column_config.LinkColumn(
                         "Research Topic",
+                        display_text=r"name=([^&]+)",
                         width="large"
                     ),
 
@@ -3976,6 +5520,12 @@ elif page == "Research Topics":
                     st.column_config.NumberColumn(
                         "Citations",
                         format="%d"
+                    ),
+
+                "Citations / Paper":
+                    st.column_config.NumberColumn(
+                        "Cit. / Paper",
+                        format="%.1f"
                     ),
 
                 "First Publication":
@@ -4000,11 +5550,855 @@ elif page == "Research Topics":
         )
 
 
+    # ========================================================
+    # TOPIC PROFILE
+    # ========================================================
+
     else:
 
-        st.warning(
-            "No topic information is available "
-            "for the selected period."
+        # ====================================================
+        # ARTICLE PROFILE
+        # ====================================================
+
+        article_from_url = (
+            st.query_params.get(
+                "article"
+            )
+        )
+
+
+        if article_from_url:
+
+            selected_doi = unquote(
+                str(article_from_url)
+            )
+
+
+            render_article_profile(
+                selected_doi=selected_doi,
+                filtered_df=filtered_df,
+                selected_journal=selected_journal,
+
+                return_page="Research Topics",
+
+                return_label=selected_topic,
+
+                return_params={
+                    "topic":
+                        selected_topic
+                }
+            )
+
+
+        # ====================================================
+        # BACK TO RESEARCH TOPICS
+        # ====================================================
+
+        if st.button(
+            "← Back to Research Topics"
+        ):
+
+            st.query_params.clear()
+
+            st.query_params[
+                "page"
+            ] = "Research Topics"
+
+            st.rerun()
+
+
+        # ====================================================
+        # SELECT TOPIC ARTICLES
+        # ====================================================
+
+        topic_articles = (
+            topic_df[
+                topic_df[
+                    "Topic"
+                ] == selected_topic
+            ]
+            .drop_duplicates(
+                subset="DOI"
+            )
+            .copy()
+        )
+
+
+        # ====================================================
+        # TOPIC NOT FOUND
+        # ====================================================
+
+        if topic_articles.empty:
+
+            st.warning(
+                "The selected research topic could not "
+                "be found within the current filters."
+            )
+
+            st.stop()
+
+
+        # ====================================================
+        # BASIC METRICS
+        # ====================================================
+
+        total_papers = (
+            topic_articles[
+                "DOI"
+            ].nunique()
+        )
+
+
+        total_citations = int(
+            topic_articles[
+                "Citations"
+            ]
+            .fillna(0)
+            .sum()
+        )
+
+
+        average_citations = (
+            total_citations /
+            total_papers
+            if total_papers > 0
+            else 0
+        )
+
+
+        first_year = int(
+            topic_articles[
+                "Year"
+            ].min()
+        )
+
+
+        latest_year = int(
+            topic_articles[
+                "Year"
+            ].max()
+        )
+
+
+        # ====================================================
+        # TOPIC PROFILE HEADER
+        # ====================================================
+
+        st.markdown(
+            '<div class="section-label">'
+            'Research Topic Profile'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        st.title(
+            selected_topic
+        )
+
+
+        st.caption(
+            f"{selected_journal} · "
+            f"{first_year}–{latest_year}"
+        )
+
+
+        # ====================================================
+        # PROFILE METRICS
+        # ====================================================
+
+        st.markdown(
+            "<br>",
+            unsafe_allow_html=True
+        )
+
+
+        m1, m2, m3 = (
+            st.columns(3)
+        )
+
+
+        m1.metric(
+            "Publications",
+            f"{total_papers:,}"
+        )
+
+
+        m2.metric(
+            "Total Citations",
+            f"{total_citations:,}"
+        )
+
+
+        m3.metric(
+            "Citations / Paper",
+            f"{average_citations:,.1f}"
+        )
+
+
+        m4, m5 = (
+            st.columns(2)
+        )
+
+
+        m4.metric(
+            "First Publication",
+            f"{first_year}"
+        )
+
+
+        m5.metric(
+            "Latest Publication",
+            f"{latest_year}"
+        )
+
+
+        # ====================================================
+        # OUTPUT OVER TIME
+        # ====================================================
+
+        st.divider()
+
+
+        st.markdown(
+            '<div class="section-label">'
+            'Publication Activity'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        st.subheader(
+            "Output Over Time"
+        )
+
+
+        topic_yearly = (
+            topic_articles
+            .groupby(
+                "Year"
+            )
+            .agg(
+                Publications=(
+                    "DOI",
+                    "nunique"
+                )
+            )
+            .reset_index()
+            .sort_values(
+                "Year"
+            )
+        )
+
+
+        fig_topic_output = px.bar(
+            topic_yearly,
+            x="Year",
+            y="Publications"
+        )
+
+
+        fig_topic_output.update_layout(
+            height=350,
+            xaxis_title="",
+            yaxis_title="Publications",
+            showlegend=False,
+            margin=dict(
+                l=20,
+                r=20,
+                t=10,
+                b=30
+            )
+        )
+
+
+        fig_topic_output.update_xaxes(
+            dtick=1
+        )
+
+
+        st.plotly_chart(
+            fig_topic_output,
+            use_container_width=True
+        )
+
+
+        # ====================================================
+        # LEADING AUTHORS
+        # ====================================================
+
+        st.divider()
+
+
+        st.markdown(
+            '<div class="section-label">'
+            'Research Community'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        st.subheader(
+            "Leading Authors"
+        )
+
+
+        topic_author_rows = []
+
+
+        for _, row in topic_articles.iterrows():
+
+            for author in split_cell(
+                row["Author"]
+            ):
+
+                topic_author_rows.append(
+                    {
+                        "Author": author,
+                        "DOI": row["DOI"],
+                        "Citations":
+                            row["Citations"]
+                    }
+                )
+
+
+        topic_authors = pd.DataFrame(
+            topic_author_rows
+        )
+
+
+        if not topic_authors.empty:
+
+            topic_author_summary = (
+                topic_authors
+                .groupby(
+                    "Author"
+                )
+                .agg(
+                    Publications=(
+                        "DOI",
+                        "nunique"
+                    ),
+
+                    Citations=(
+                        "Citations",
+                        "sum"
+                    )
+                )
+                .reset_index()
+                .sort_values(
+                    [
+                        "Publications",
+                        "Citations",
+                        "Author"
+                    ],
+                    ascending=[
+                        False,
+                        False,
+                        True
+                    ]
+                )
+                .head(10)
+            )
+
+
+            author_plot = (
+                topic_author_summary
+                .sort_values(
+                    "Publications",
+                    ascending=True
+                )
+            )
+
+
+            fig_topic_authors = px.bar(
+                author_plot,
+                x="Publications",
+                y="Author",
+                orientation="h"
+            )
+
+
+            fig_topic_authors.update_layout(
+                height=420,
+                xaxis_title="Publications",
+                yaxis_title="",
+                showlegend=False,
+                margin=dict(
+                    l=10,
+                    r=20,
+                    t=10,
+                    b=30
+                )
+            )
+
+
+            st.plotly_chart(
+                fig_topic_authors,
+                use_container_width=True
+            )
+
+
+        else:
+
+            st.info(
+                "Author information is not available "
+                "for publications in this topic."
+            )
+
+
+        # ====================================================
+        # INSTITUTIONS AND COUNTRIES
+        # ====================================================
+
+        st.divider()
+
+
+        institution_col, country_col = (
+            st.columns(2)
+        )
+
+
+        # ----------------------------------------------------
+        # LEADING INSTITUTIONS
+        # ----------------------------------------------------
+
+        with institution_col:
+
+            st.markdown(
+                '<div class="section-label">'
+                'Institutional Participation'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+
+            st.subheader(
+                "Leading Institutions"
+            )
+
+
+            institution_rows = []
+
+
+            for _, row in (
+                topic_articles.iterrows()
+            ):
+
+                for institution in split_cell(
+                    row["Institution"]
+                ):
+
+                    institution_rows.append(
+                        {
+                            "Institution":
+                                institution,
+
+                            "DOI":
+                                row["DOI"],
+
+                            "Citations":
+                                row["Citations"]
+                        }
+                    )
+
+
+            topic_institutions = (
+                pd.DataFrame(
+                    institution_rows
+                )
+            )
+
+
+            if not topic_institutions.empty:
+
+                institution_summary = (
+                    topic_institutions
+                    .groupby(
+                        "Institution"
+                    )
+                    .agg(
+                        Publications=(
+                            "DOI",
+                            "nunique"
+                        ),
+
+                        Citations=(
+                            "Citations",
+                            "sum"
+                        )
+                    )
+                    .reset_index()
+                    .sort_values(
+                        [
+                            "Publications",
+                            "Citations",
+                            "Institution"
+                        ],
+                        ascending=[
+                            False,
+                            False,
+                            True
+                        ]
+                    )
+                    .head(10)
+                )
+
+
+                institution_plot = (
+                    institution_summary
+                    .sort_values(
+                        "Publications",
+                        ascending=True
+                    )
+                )
+
+
+                fig_topic_institutions = (
+                    px.bar(
+                        institution_plot,
+                        x="Publications",
+                        y="Institution",
+                        orientation="h"
+                    )
+                )
+
+
+                fig_topic_institutions.update_layout(
+                    height=430,
+                    xaxis_title="Publications",
+                    yaxis_title="",
+                    showlegend=False,
+                    margin=dict(
+                        l=10,
+                        r=10,
+                        t=10,
+                        b=30
+                    )
+                )
+
+
+                st.plotly_chart(
+                    fig_topic_institutions,
+                    use_container_width=True
+                )
+
+
+            else:
+
+                st.caption(
+                    "Institution information "
+                    "is not available."
+                )
+
+
+        # ----------------------------------------------------
+        # LEADING COUNTRIES
+        # ----------------------------------------------------
+
+        with country_col:
+
+            st.markdown(
+                '<div class="section-label">'
+                'Geographic Participation'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+
+            st.subheader(
+                "Leading Countries"
+            )
+
+
+            country_rows = []
+
+
+            for _, row in (
+                topic_articles.iterrows()
+            ):
+
+                for country_code in split_cell(
+                    row["Country"]
+                ):
+
+                    country_name = (
+                        country_code_to_name(
+                            country_code
+                        )
+                    )
+
+
+                    if country_name:
+
+                        country_rows.append(
+                            {
+                                "Country":
+                                    country_name,
+
+                                "DOI":
+                                    row["DOI"],
+
+                                "Citations":
+                                    row["Citations"]
+                            }
+                        )
+
+
+            topic_countries = (
+                pd.DataFrame(
+                    country_rows
+                )
+            )
+
+
+            if not topic_countries.empty:
+
+                country_summary = (
+                    topic_countries
+                    .groupby(
+                        "Country"
+                    )
+                    .agg(
+                        Publications=(
+                            "DOI",
+                            "nunique"
+                        ),
+
+                        Citations=(
+                            "Citations",
+                            "sum"
+                        )
+                    )
+                    .reset_index()
+                    .sort_values(
+                        [
+                            "Publications",
+                            "Citations",
+                            "Country"
+                        ],
+                        ascending=[
+                            False,
+                            False,
+                            True
+                        ]
+                    )
+                    .head(10)
+                )
+
+
+                country_plot = (
+                    country_summary
+                    .sort_values(
+                        "Publications",
+                        ascending=True
+                    )
+                )
+
+
+                fig_topic_countries = (
+                    px.bar(
+                        country_plot,
+                        x="Publications",
+                        y="Country",
+                        orientation="h"
+                    )
+                )
+
+
+                fig_topic_countries.update_layout(
+                    height=430,
+                    xaxis_title="Publications",
+                    yaxis_title="",
+                    showlegend=False,
+                    margin=dict(
+                        l=10,
+                        r=10,
+                        t=10,
+                        b=30
+                    )
+                )
+
+
+                st.plotly_chart(
+                    fig_topic_countries,
+                    use_container_width=True
+                )
+
+
+            else:
+
+                st.caption(
+                    "Country information "
+                    "is not available."
+                )
+
+
+        # ====================================================
+        # INTERPRETATION NOTE
+        # ====================================================
+
+        st.caption(
+            "Institution and country information is reported "
+            "at the article level. The current dataset does "
+            "not preserve exact author-to-institution or "
+            "institution-to-country relationships."
+        )
+
+
+        # ====================================================
+        # PUBLICATIONS
+        # ====================================================
+
+        st.divider()
+
+
+        st.markdown(
+            '<div class="section-label">'
+            'Research Output'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+        st.subheader(
+            "Publications"
+        )
+
+
+        st.caption(
+            "Click a publication title to view "
+            "its article profile."
+        )
+
+
+        # ====================================================
+        # PREPARE PUBLICATION TABLE
+        # ====================================================
+
+        publication_table = (
+            topic_articles[
+                [
+                    "Year",
+                    "Title",
+                    "Citations",
+                    "DOI"
+                ]
+            ]
+            .sort_values(
+                [
+                    "Year",
+                    "Citations"
+                ],
+                ascending=[
+                    False,
+                    False
+                ]
+            )
+            .copy()
+        )
+
+
+        # ====================================================
+        # INTERNAL ARTICLE LINKS
+        # ====================================================
+
+        publication_table[
+            "Publication"
+        ] = (
+            publication_table
+            .apply(
+                lambda row:
+                    f"?page={quote('Research Topics')}"
+                    f"&topic={quote(str(selected_topic))}"
+                    f"&article={quote(str(row['DOI']))}"
+                    f"&title={quote(str(row['Title']))}",
+                axis=1
+            )
+        )
+
+
+        # ====================================================
+        # DOI LINKS
+        # ====================================================
+
+        publication_table[
+            "DOI Link"
+        ] = (
+            publication_table[
+                "DOI"
+            ]
+            .apply(
+                make_doi_link
+            )
+        )
+
+
+        publication_display = (
+            publication_table[
+                [
+                    "Year",
+                    "Publication",
+                    "Citations",
+                    "DOI Link"
+                ]
+            ]
+            .copy()
+        )
+
+
+        # ====================================================
+        # DISPLAY PUBLICATIONS
+        # ====================================================
+
+        st.dataframe(
+            publication_display,
+            use_container_width=True,
+            hide_index=True,
+            height=550,
+
+            column_config={
+
+                "Year":
+                    st.column_config.NumberColumn(
+                        "Year",
+                        width="small",
+                        format="%d"
+                    ),
+
+                "Publication":
+                    st.column_config.LinkColumn(
+                        "Publication",
+                        display_text=r"title=([^&]+)",
+                        width="large"
+                    ),
+
+                "Citations":
+                    st.column_config.NumberColumn(
+                        "Citations",
+                        format="%d",
+                        width="small"
+                    ),
+
+                "DOI Link":
+                    st.column_config.LinkColumn(
+                        "DOI",
+                        display_text="Open DOI",
+                        width="small"
+                    )
+            }
+        )
+
+
+        # ====================================================
+        # METHODOLOGY NOTE
+        # ====================================================
+
+        st.caption(
+            "Topic classifications are based on OpenAlex. "
+            "A publication may be associated with multiple "
+            "research topics, so topic publication counts "
+            "are not mutually exclusive."
         )
 
 
@@ -4014,430 +6408,240 @@ elif page == "Research Topics":
 
 elif page == "Articles":
 
-    # --------------------------------------------------------
-    # PAGE HEADER
-    # --------------------------------------------------------
+    article_from_url = st.query_params.get("article")
+
+    if article_from_url:
+        selected_doi = unquote(str(article_from_url))
+        render_article_profile(
+            selected_doi=selected_doi,
+            filtered_df=filtered_df,
+            selected_journal=selected_journal,
+            return_page="Articles",
+            return_label="Articles"
+        )
 
     st.markdown(
         '<div class="section-label">Publication Explorer</div>',
         unsafe_allow_html=True
     )
-
     st.header("Articles")
-
     st.caption(
-        f"{selected_journal} · "
+        f"Browse publications from {selected_journal} · "
         f"{year_range[0]}–{year_range[1]}"
     )
 
+    article_df = filtered_df.copy()
+    article_df["Citation count"] = pd.to_numeric(
+        article_df["Citation count"], errors="coerce"
+    ).fillna(0)
 
-    # ========================================================
-    # SEARCH
-    # ========================================================
+    total_articles = article_df["DOI"].nunique()
+    total_citations = int(article_df["Citation count"].sum())
+    average_citations = (
+        article_df["Citation count"].mean()
+        if total_articles > 0 else 0
+    )
+    open_access_count = (
+        article_df["Open access"].fillna("").astype(str)
+        .str.strip().str.lower().eq("open access").sum()
+    )
+    open_access_rate = (
+        open_access_count / total_articles * 100
+        if total_articles > 0 else 0
+    )
+
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Publications", f"{total_articles:,}")
+    k2.metric("Total Citations", f"{total_citations:,}")
+    k3.metric("Avg. Citations / Paper", f"{average_citations:,.1f}")
+    k4.metric("Open Access", f"{open_access_rate:.1f}%")
 
     st.markdown("<br>", unsafe_allow_html=True)
-
-    search_query = st.text_input(
-        "Search publications",
-        placeholder=(
-            "Search title, author, keyword or topic..."
-        )
+    st.markdown(
+        '<div class="section-label">Find Publications</div>',
+        unsafe_allow_html=True
     )
-
-
-    # ========================================================
-    # FILTER OPTIONS
-    # ========================================================
-
-    filter_col1, filter_col2, filter_col3 = st.columns(3)
-
-
-    # -------------------------
-    # TOPIC FILTER
-    # -------------------------
-
-    all_topics = sorted(
-        set(
-            split_values(
-                filtered_df["Topic"]
-            )
+    search_col, topic_col = st.columns([2.3, 1.7])
+    with search_col:
+        article_search = st.text_input(
+            "Search publications",
+            placeholder="Search by title, author or DOI...",
+            key="article_search"
         )
-    )
 
+    article_topics = sorted(set(split_values(article_df["Topic"])))
+    with topic_col:
+        selected_article_topic = st.selectbox(
+            "Research topic", ["All topics"] + article_topics,
+            key="article_topic_filter"
+        )
 
+    filter_col1, filter_col2, filter_col3 = st.columns([1.2, 1.2, 1.4])
     with filter_col1:
-
-        selected_article_topics = st.multiselect(
-            "Topic",
-            options=all_topics,
-            placeholder="All topics"
+        access_filter = st.selectbox(
+            "Access", ["All", "Open Access", "Closed Access"],
+            key="article_access_filter"
         )
-
-
-    # -------------------------
-    # OPEN ACCESS FILTER
-    # -------------------------
-
-    access_options = sorted(
-        filtered_df["Open access"]
-        .dropna()
-        .unique()
-        .tolist()
-    )
-
-
     with filter_col2:
-
-        selected_article_access = st.multiselect(
-            "Access",
-            options=access_options,
-            placeholder="All access types"
-        )
-
-
-    # -------------------------
-    # MINIMUM CITATIONS
-    # -------------------------
-
-    with filter_col3:
-
         minimum_citations = st.number_input(
-            "Minimum citations",
-            min_value=0,
-            value=0,
-            step=1
+            "Minimum citations", min_value=0, value=0, step=1,
+            key="article_min_citations"
+        )
+    with filter_col3:
+        article_sort = st.selectbox(
+            "Sort by", ["Newest", "Oldest", "Most Cited", "Title"],
+            key="article_sort"
         )
 
-
-    # ========================================================
-    # START WITH YEAR-FILTERED DATA
-    # ========================================================
-
-    article_df = filtered_df.copy()
-
-
-    # ========================================================
-    # APPLY TEXT SEARCH
-    # ========================================================
-
-    if search_query:
-
-        search_columns = [
-            "Title",
-            "Author",
-            "Keyword",
-            "Topic"
-        ]
-
-        search_mask = pd.Series(
-            False,
-            index=article_df.index
+    display_articles = article_df.copy()
+    if article_search:
+        search_text = article_search.strip()
+        title_match = display_articles["Title"].fillna("").astype(str).str.contains(
+            search_text, case=False, na=False, regex=False
         )
+        author_match = display_articles["Author"].fillna("").astype(str).str.contains(
+            search_text, case=False, na=False, regex=False
+        )
+        doi_match = display_articles["DOI"].fillna("").astype(str).str.contains(
+            search_text, case=False, na=False, regex=False
+        )
+        display_articles = display_articles[title_match | author_match | doi_match]
 
-        for column in search_columns:
-
-            search_mask = (
-                search_mask |
-                article_df[column]
-                .fillna("")
-                .astype(str)
-                .str.contains(
-                    search_query,
-                    case=False,
-                    na=False,
-                    regex=False
-                )
+    if selected_article_topic != "All topics":
+        display_articles = display_articles[
+            display_articles["Topic"].fillna("").astype(str).apply(
+                lambda value: selected_article_topic in split_cell(value)
             )
-
-        article_df = article_df[
-            search_mask
         ]
 
-
-    # ========================================================
-    # APPLY TOPIC FILTER
-    # ========================================================
-
-    if selected_article_topics:
-
-        def contains_selected_topic(value):
-
-            if pd.isna(value):
-                return False
-
-            article_topics = {
-                item.strip()
-                for item in str(value).split("|")
-                if item.strip()
-            }
-
-            return bool(
-                article_topics.intersection(
-                    selected_article_topics
-                )
-            )
-
-
-        article_df = article_df[
-            article_df["Topic"]
-            .apply(contains_selected_topic)
+    if access_filter == "Open Access":
+        display_articles = display_articles[
+            display_articles["Open access"].fillna("").astype(str)
+            .str.strip().str.lower().eq("open access")
+        ]
+    elif access_filter == "Closed Access":
+        display_articles = display_articles[
+            display_articles["Open access"].fillna("").astype(str)
+            .str.strip().str.lower().eq("closed access")
         ]
 
-
-    # ========================================================
-    # APPLY ACCESS FILTER
-    # ========================================================
-
-    if selected_article_access:
-
-        article_df = article_df[
-            article_df["Open access"]
-            .isin(selected_article_access)
-        ]
-
-
-    # ========================================================
-    # APPLY CITATION FILTER
-    # ========================================================
-
-    article_df = article_df[
-        article_df["Citation count"]
-        >= minimum_citations
+    display_articles = display_articles[
+        display_articles["Citation count"] >= minimum_citations
     ]
 
-
-    # ========================================================
-    # RESULTS SUMMARY
-    # ========================================================
+    if article_sort == "Newest":
+        display_articles = display_articles.sort_values(
+            ["Year", "Citation count", "Title"], ascending=[False, False, True]
+        )
+    elif article_sort == "Oldest":
+        display_articles = display_articles.sort_values(
+            ["Year", "Citation count", "Title"], ascending=[True, False, True]
+        )
+    elif article_sort == "Most Cited":
+        display_articles = display_articles.sort_values(
+            ["Citation count", "Year", "Title"], ascending=[False, False, True]
+        )
+    else:
+        display_articles = display_articles.sort_values(
+            ["Title", "Year"], ascending=[True, False]
+        )
+    display_articles = display_articles.reset_index(drop=True)
 
     st.divider()
-
-    total_results = len(article_df)
-
-    result_citations = (
-        article_df["Citation count"].sum()
-    )
-
-    result_avg_citations = (
-        article_df["Citation count"].mean()
-        if total_results > 0
-        else 0
-    )
-
-
-    r1, r2, r3 = st.columns(3)
-
-
-    r1.metric(
-        "Publications Found",
-        f"{total_results:,}"
-    )
-
-
-    r2.metric(
-        "Total Citations",
-        f"{result_citations:,}"
-    )
-
-
-    r3.metric(
-        "Average Citations",
-        f"{result_avg_citations:,.1f}"
-    )
-
-
-    # ========================================================
-    # SORT + ROW LIMIT
-    # ========================================================
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-
-    sort_col, rows_col = st.columns([2, 1])
-
-
-    with sort_col:
-
-        article_sort = st.selectbox(
-            "Sort publications by",
-            [
-                "Most Cited",
-                "Newest",
-                "Oldest",
-                "Title A–Z"
-            ]
-        )
-
-
-    with rows_col:
-
-        article_limit = st.selectbox(
-            "Show",
-            [25, 50, 100, 250],
-            index=1,
-            format_func=lambda x:
-                f"{x} publications"
-        )
-
-
-    # ========================================================
-    # SORT
-    # ========================================================
-
-    if article_sort == "Most Cited":
-
-        article_df = article_df.sort_values(
-            "Citation count",
-            ascending=False
-        )
-
-
-    elif article_sort == "Newest":
-
-        article_df = article_df.sort_values(
-            ["Year", "Date"],
-            ascending=False
-        )
-
-
-    elif article_sort == "Oldest":
-
-        article_df = article_df.sort_values(
-            ["Year", "Date"],
-            ascending=True
-        )
-
-
-    else:
-
-        article_df = article_df.sort_values(
-            "Title",
-            ascending=True
-        )
-
-
-    # ========================================================
-    # PUBLICATION REGISTER
-    # ========================================================
-
     title_col, count_col = st.columns([3, 1])
-
-
     with title_col:
-
-        st.subheader(
-            "Publication Register"
-        )
-
-
+        st.subheader("Publication Register")
     with count_col:
-
         st.markdown(
-            f"""
-            <div style="
-                text-align:right;
-                padding-top:10px;
-                font-size:0.9rem;
-                opacity:0.65;
-            ">
-                Showing <b>{min(article_limit, total_results):,}</b>
-                of <b>{total_results:,}</b>
-            </div>
-            """,
+            f'<div style="text-align:right;padding-top:10px;'
+            f'font-size:0.9rem;opacity:0.65;"><b>'
+            f'{len(display_articles):,}</b> publications found</div>',
             unsafe_allow_html=True
         )
+    st.caption("Click a publication title to view its complete article profile.")
 
+    article_limit = st.selectbox(
+        "Show", [25, 50, 100, 250], index=1,
+        format_func=lambda x: f"{x} publications", key="article_rows"
+    )
+    publication_table = display_articles[
+        ["Year", "Title", "Author", "Citation count", "Open access", "DOI"]
+    ].head(article_limit).copy()
+    publication_table["Publication"] = publication_table.apply(
+        lambda row: (
+            f"?page=Articles&article={quote(str(row['DOI']))}"
+            f"&title={quote(str(row['Title']))}"
+        ),
+        axis=1
+    )
+    publication_table["DOI Link"] = publication_table["DOI"].apply(make_doi_link)
 
-    # ========================================================
-    # DISPLAY TABLE
-    # ========================================================
+    def display_access_status(value):
+        if pd.isna(value):
+            return "—"
+        value = str(value).strip()
+        if not value:
+            return "—"
+        normalized = value.lower()
+        if normalized == "open access":
+            return "Open Access"
+        if normalized == "closed access":
+            return "Closed Access"
+        return "—"
 
-    table_df = (
-        article_df[
-            [
-                "Title",
-                "Year",
-                "Author",
-                "Citation count",
-                "Open access",
-                "DOI"
-            ]
-        ]
-        .head(article_limit)
-        .copy()
+    publication_table["Access"] = publication_table["Open access"].apply(
+        display_access_status
     )
 
+    def display_article_authors(value):
+        authors = split_cell(value)
+        if not authors:
+            return "—"
+        if len(authors) <= 2:
+            return ", ".join(authors)
+        return f"{authors[0]}, {authors[1]} + {len(authors) - 2} more"
 
-    table_df = table_df.rename(
-        columns={
-            "Citation count": "Citations",
-            "Open access": "Access"
-        }
+    publication_table["Authors"] = publication_table["Author"].apply(
+        display_article_authors
     )
+    publication_display = publication_table[
+        ["Year", "Publication", "Authors", "Citation count", "Access", "DOI Link"]
+    ].rename(columns={"Citation count": "Citations"}).copy()
 
-
-    st.dataframe(
-        table_df,
-
-        use_container_width=True,
-
-        hide_index=True,
-
-        height=650,
-
-        column_config={
-
-            "Title":
-                st.column_config.TextColumn(
-                    "Article",
-                    width="large"
+    if publication_display.empty:
+        st.info("No publications match the selected filters.")
+    else:
+        st.dataframe(
+            publication_display,
+            use_container_width=True,
+            hide_index=True,
+            height=650,
+            column_config={
+                "Year": st.column_config.NumberColumn(
+                    "Year", width="small", format="%d"
                 ),
-
-            "Year":
-                st.column_config.NumberColumn(
-                    "Year",
-                    format="%d"
+                "Publication": st.column_config.LinkColumn(
+                    "Publication", display_text=r"title=([^&]+)", width="large"
                 ),
-
-            "Author":
-                st.column_config.TextColumn(
-                    "Authors",
-                    width="medium"
+                "Authors": st.column_config.TextColumn(
+                    "Authors", width="medium"
                 ),
-
-            "Citations":
-                st.column_config.NumberColumn(
-                    "Citations",
-                    format="%d"
+                "Citations": st.column_config.NumberColumn(
+                    "Citations", width="small", format="%d"
                 ),
-
-            "Access":
-                st.column_config.TextColumn(
-                    "Access"
+                "Access": st.column_config.TextColumn(
+                    "Access", width="small"
                 ),
-
-            "DOI":
-                st.column_config.TextColumn(
-                    "DOI"
+                "DOI Link": st.column_config.LinkColumn(
+                    "DOI", display_text="Open DOI", width="small"
                 )
-        }
-    )
-
-
-    # ========================================================
-    # EMPTY RESULT MESSAGE
-    # ========================================================
-
-    if total_results == 0:
-
-        st.info(
-            "No publications match the selected filters."
+            }
         )
 
-
     st.caption(
-        "Search results reflect the currently selected "
-        "journal and publication-year range."
+        "Citation counts are cumulative and may change over time. "
+        "Open-access status is based on the available metadata. A dash "
+        "indicates that access status is not available in the current dataset."
     )
 
 
