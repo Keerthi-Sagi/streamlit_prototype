@@ -465,22 +465,32 @@ div[data-testid="stCaptionContainer"] {
 """, unsafe_allow_html=True)
 
 # ============================================================
-# LOAD DATA
+# LOAD JOURNAL DATA
 # ============================================================
 
 @st.cache_data
 def load_data():
 
-    df = pd.read_csv("data/dss_cleaned.csv")
+    # Load cleaned journal datasets
+    dss = pd.read_csv(
+        "data/dss_cleaned.csv"
+    )
 
+    ejis = pd.read_csv(
+        "data/ejis_cleaned.csv"
+    )
+
+    # Combine journals in memory
+    df = pd.concat(
+        [dss, ejis],
+        ignore_index=True
+    )
+
+    # Standardize date
     df["Date"] = pd.to_datetime(
         df["Date"],
         errors="coerce"
     )
-
-    # Temporary journal column.
-    # Later all 11 journals will use this same structure.
-    df["Journal"] = "Decision Support Systems"
 
     return df
 
@@ -501,13 +511,16 @@ st.sidebar.divider()
 # JOURNAL SELECTION
 # ============================================================
 
-journal_options = sorted(
-    df["Journal"].dropna().unique()
+journal_options = [
+    "All Journals"
+] + sorted(
+    df["Journal"].dropna().unique().tolist()
 )
 
 selected_journal = st.sidebar.selectbox(
     "Journal",
-    journal_options
+    journal_options,
+    index=0
 )
 
 
@@ -544,37 +557,39 @@ page = st.sidebar.radio(
 )
 
 # ============================================================
+# JOURNAL FILTER
+# ============================================================
+
+if selected_journal == "All Journals":
+    journal_df = df.copy()
+else:
+    journal_df = df[
+        df["Journal"] == selected_journal
+    ].copy()
+
+
+# ============================================================
 # YEAR FILTER
 # ============================================================
 
-st.sidebar.divider()
-
-min_year = int(
-    df["Year"].min()
-)
-
-max_year = int(
-    df["Year"].max()
-)
+min_year = int(journal_df["Year"].min())
+max_year = int(journal_df["Year"].max())
 
 year_range = st.sidebar.slider(
     "Publication years",
     min_value=min_year,
     max_value=max_year,
-    value=(min_year, max_year)
+    value=(min_year, max_year),
+    key=f"year_range_{selected_journal}"
 )
 
-# ============================================================
-# FILTER DATA
-# ============================================================
 
-filtered_df = df[
-    (df["Journal"] == selected_journal)
+filtered_df = journal_df[
+    (journal_df["Year"] >= year_range[0])
     &
-    (df["Year"] >= year_range[0])
-    &
-    (df["Year"] <= year_range[1])
+    (journal_df["Year"] <= year_range[1])
 ].copy()
+
 
 # # ============================================================
 # # HEADER
@@ -1343,18 +1358,31 @@ if page == "Overview":
     # PAGE HEADER
     # --------------------------------------------------------
 
-    st.markdown(
-        '<div class="section-label">Journal Overview</div>',
-        unsafe_allow_html=True
-    )
+    if selected_journal == "All Journals":
+        st.markdown(
+            '<div class="section-label">Research Overview</div>',
+            unsafe_allow_html=True
+        )
 
-    st.header("Decision Support Systems")
+        st.header("Information Systems Journals")
 
-    st.caption(
-        f"Research activity and scholarly impact · "
-        f"{year_range[0]}–{year_range[1]}"
-    )
+        st.caption(
+            f"Combined research activity and scholarly impact · "
+            f"{year_range[0]}–{year_range[1]}"
+        )
 
+    else:
+        st.markdown(
+            '<div class="section-label">Journal Overview</div>',
+            unsafe_allow_html=True
+        )
+
+        st.header(selected_journal)
+
+        st.caption(
+            f"Research activity and scholarly impact · "
+            f"{year_range[0]}–{year_range[1]}"
+        )
 
     # ========================================================
     # KPI CALCULATIONS
@@ -1384,7 +1412,6 @@ if page == "Overview":
         filtered_df["Country"]
     )
 
-
     # ========================================================
     # PRIMARY KPI CARDS
     # ========================================================
@@ -1411,7 +1438,6 @@ if page == "Overview":
         f"{avg_citations:,.1f}"
     )
 
-
     # ========================================================
     # SECONDARY SUMMARY
     # ========================================================
@@ -1430,7 +1456,6 @@ if page == "Overview":
         f"{total_countries:,}"
     )
 
-
     # International collaboration
     international_count = (
         filtered_df[
@@ -1443,8 +1468,7 @@ if page == "Overview":
     )
 
     international_rate = (
-        international_count /
-        total_articles * 100
+        international_count / total_articles * 100
         if total_articles > 0
         else 0
     )
@@ -1453,7 +1477,6 @@ if page == "Overview":
         "International Collaboration",
         f"{international_rate:.1f}%"
     )
-
 
     # ========================================================
     # PUBLICATION TREND
@@ -1468,7 +1491,6 @@ if page == "Overview":
 
     st.subheader("Publications Over Time")
 
-
     yearly_publications = (
         filtered_df
         .groupby("Year")
@@ -1478,14 +1500,12 @@ if page == "Overview":
         .reset_index()
     )
 
-
     fig_publications = px.line(
         yearly_publications,
         x="Year",
         y="Publications",
         markers=True
     )
-
 
     fig_publications.update_layout(
         height=400,
@@ -1500,17 +1520,14 @@ if page == "Overview":
         )
     )
 
-
     fig_publications.update_xaxes(
         dtick=1
     )
-
 
     st.plotly_chart(
         fig_publications,
         use_container_width=True
     )
-
 
     # ========================================================
     # CITATION + OPEN ACCESS
@@ -1520,13 +1537,11 @@ if page == "Overview":
 
     left, right = st.columns([1.7, 1])
 
-
     # --------------------------------------------------------
     # CITATION IMPACT
     # --------------------------------------------------------
 
     with left:
-
         st.markdown(
             '<div class="section-label">Scholarly Impact</div>',
             unsafe_allow_html=True
@@ -1535,7 +1550,6 @@ if page == "Overview":
         st.subheader(
             "Citation Impact by Publication Year"
         )
-
 
         yearly_citations = (
             filtered_df
@@ -1546,13 +1560,11 @@ if page == "Overview":
             .reset_index()
         )
 
-
         fig_citations = px.bar(
             yearly_citations,
             x="Year",
             y="Citations"
         )
-
 
         fig_citations.update_layout(
             height=390,
@@ -1566,19 +1578,16 @@ if page == "Overview":
             )
         )
 
-
         st.plotly_chart(
             fig_citations,
             use_container_width=True
         )
-
 
     # --------------------------------------------------------
     # OPEN ACCESS
     # --------------------------------------------------------
 
     with right:
-
         st.markdown(
             '<div class="section-label">Accessibility</div>',
             unsafe_allow_html=True
@@ -1587,7 +1596,6 @@ if page == "Overview":
         st.subheader(
             "Open Access"
         )
-
 
         access_data = (
             filtered_df[
@@ -1602,14 +1610,12 @@ if page == "Overview":
             "Publications"
         ]
 
-
         fig_access = px.pie(
             access_data,
             names="Access",
             values="Publications",
             hole=0.6
         )
-
 
         fig_access.update_layout(
             height=390,
@@ -1622,12 +1628,10 @@ if page == "Overview":
             legend_title_text=""
         )
 
-
         st.plotly_chart(
             fig_access,
             use_container_width=True
         )
-
 
     # ========================================================
     # LEADING RESEARCH
@@ -1640,7 +1644,6 @@ if page == "Overview":
         unsafe_allow_html=True
     )
     st.subheader("Leading Research Areas")
-
 
     # --------------------------------------------------------
     # TOPICS
@@ -1689,7 +1692,6 @@ if page == "Overview":
     # --------------------------------------------------------
 
     with chart1:
-
         st.markdown("#### Top Research Topics")
 
         topic_chart_data = (
@@ -1724,13 +1726,11 @@ if page == "Overview":
             use_container_width=True
         )
 
-
     # --------------------------------------------------------
     # TOP INSTITUTIONS
     # --------------------------------------------------------
 
     with chart2:
-
         st.markdown("#### Leading Institutions")
 
         institution_chart_data = (
@@ -1764,7 +1764,6 @@ if page == "Overview":
             fig_institutions,
             use_container_width=True
         )
-
 
     # ========================================================
     # HIGH IMPACT PUBLICATIONS
@@ -1800,8 +1799,7 @@ if page == "Overview":
 
     top_articles = top_articles.rename(
         columns={
-            "Citation count":
-                "Citations"
+            "Citation count": "Citations"
         }
     )
 
@@ -1810,33 +1808,24 @@ if page == "Overview":
         use_container_width=True,
         hide_index=True,
         column_config={
-
-            "Title":
-                st.column_config.TextColumn(
-                    "Article",
-                    width="large"
-                ),
-
-            "Year":
-                st.column_config.NumberColumn(
-                    "Year",
-                    format="%d"
-                ),
-
-            "Author":
-                st.column_config.TextColumn(
-                    "Authors",
-                    width="medium"
-                ),
-
-            "Citations":
-                st.column_config.NumberColumn(
-                    "Citations",
-                    format="%d"
-                )
+            "Title": st.column_config.TextColumn(
+                "Article",
+                width="large"
+            ),
+            "Year": st.column_config.NumberColumn(
+                "Year",
+                format="%d"
+            ),
+            "Author": st.column_config.TextColumn(
+                "Authors",
+                width="medium"
+            ),
+            "Citations": st.column_config.NumberColumn(
+                "Citations",
+                format="%d"
+            )
         }
     )
-
 
     # ========================================================
     # METHODOLOGY NOTE
@@ -1867,7 +1856,8 @@ if page == "Overview":
 
     col3.metric(
         "Authors",
-        f"{total_authors:,}"    )
+        f"{total_authors:,}"
+    )
 
     col4.metric(
         "Institutions",
